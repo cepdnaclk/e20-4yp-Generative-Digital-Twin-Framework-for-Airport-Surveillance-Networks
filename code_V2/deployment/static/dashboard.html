@@ -1,0 +1,973 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Airport Surveillance — Digital Twin Dashboard</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet" />
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box
+    }
+
+    :root {
+      --bg: #0a0e1a;
+      --surface: #111827;
+      --surface2: #1e293b;
+      --border: #1e3a5f;
+      --accent: #38bdf8;
+      --accent2: #818cf8;
+      --accent3: #34d399;
+      --danger: #f87171;
+      --text: #e2e8f0;
+      --text2: #94a3b8;
+      --text3: #64748b;
+      --glow: 0 0 20px rgba(56, 189, 248, .15);
+    }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      overflow-x: hidden
+    }
+
+    /* ─── HEADER ──────────────────────────────────────── */
+    .header {
+      background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+      border-bottom: 1px solid var(--border);
+      padding: 14px 32px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      backdrop-filter: blur(12px)
+    }
+
+    .header .logo {
+      display: flex;
+      align-items: center;
+      gap: 12px
+    }
+
+    .header .logo i {
+      font-size: 22px;
+      color: var(--accent);
+      filter: drop-shadow(0 0 6px rgba(56, 189, 248, .5))
+    }
+
+    .header .logo span {
+      font-size: 18px;
+      font-weight: 700;
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent
+    }
+
+    .header .status {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 13px;
+      color: var(--text2)
+    }
+
+    .status-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--accent3);
+      box-shadow: 0 0 8px var(--accent3);
+      animation: pulse-dot 2s infinite
+    }
+
+    @keyframes pulse-dot {
+
+      0%,
+      100% {
+        opacity: 1
+      }
+
+      50% {
+        opacity: .4
+      }
+    }
+
+    /* ─── NAV TABS ────────────────────────────────────── */
+    .nav {
+      display: flex;
+      gap: 4px;
+      padding: 12px 32px 0;
+      background: var(--surface)
+    }
+
+    .nav button {
+      padding: 10px 22px;
+      border: none;
+      background: transparent;
+      color: var(--text2);
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
+      border-radius: 8px 8px 0 0;
+      transition: .2s;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-family: inherit;
+      position: relative
+    }
+
+    .nav button:hover {
+      color: var(--text);
+      background: var(--surface2)
+    }
+
+    .nav button.active {
+      color: var(--accent);
+      background: var(--surface2)
+    }
+
+    .nav button.active::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 2px;
+      background: var(--accent);
+      border-radius: 2px 2px 0 0
+    }
+
+    /* ─── MAIN LAYOUT ─────────────────────────────────── */
+    .main {
+      padding: 24px 32px;
+      max-width: 1400px;
+      margin: 0 auto
+    }
+
+    .panel {
+      display: none;
+      animation: fadeUp .3s ease
+    }
+
+    .panel.active {
+      display: block
+    }
+
+    @keyframes fadeUp {
+      from {
+        opacity: 0;
+        transform: translateY(12px)
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0)
+      }
+    }
+
+    /* ─── CARDS ───────────────────────────────────────── */
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 24px;
+      margin-bottom: 20px;
+      box-shadow: var(--glow)
+    }
+
+    .card h3 {
+      font-size: 15px;
+      font-weight: 600;
+      margin-bottom: 14px;
+      display: flex;
+      align-items: center;
+      gap: 8px
+    }
+
+    .card h3 i {
+      color: var(--accent);
+      font-size: 14px
+    }
+
+    /* ─── FORM ELEMENTS ───────────────────────────────── */
+    textarea,
+    input[type=text],
+    input[type=number],
+    select {
+      width: 100%;
+      padding: 12px 16px;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      background: var(--bg);
+      color: var(--text);
+      font-size: 14px;
+      font-family: inherit;
+      resize: vertical;
+      transition: .2s
+    }
+
+    textarea:focus,
+    input:focus,
+    select:focus {
+      outline: none;
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(56, 189, 248, .1)
+    }
+
+    textarea {
+      min-height: 80px
+    }
+
+    label {
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--text2);
+      margin-bottom: 6px;
+      display: block;
+      text-transform: uppercase;
+      letter-spacing: .5px
+    }
+
+    .btn {
+      padding: 12px 24px;
+      border: none;
+      border-radius: 10px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      font-family: inherit;
+      transition: .25s;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      color: #fff;
+      box-shadow: 0 4px 15px rgba(56, 189, 248, .3)
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 6px 20px rgba(56, 189, 248, .4)
+    }
+
+    .btn-primary:disabled {
+      opacity: .5;
+      cursor: not-allowed;
+      transform: none
+    }
+
+    .btn-danger {
+      background: linear-gradient(135deg, #ef4444, #dc2626);
+      color: #fff
+    }
+
+    .btn-outline {
+      background: transparent;
+      border: 1px solid var(--border);
+      color: var(--text2)
+    }
+
+    .btn-outline:hover {
+      border-color: var(--accent);
+      color: var(--accent)
+    }
+
+    .btn-sm {
+      padding: 8px 16px;
+      font-size: 12px
+    }
+
+    /* ─── ZONE CONFIG TABLE ──────────────────────────── */
+    .zone-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 12px;
+      margin-top: 12px
+    }
+
+    .zone-card {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 16px;
+      transition: .2s
+    }
+
+    .zone-card:hover {
+      border-color: var(--accent)
+    }
+
+    .zone-card .zone-title {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--accent);
+      margin-bottom: 12px
+    }
+
+    .zone-card .field {
+      margin-bottom: 10px
+    }
+
+    .zone-card .field label {
+      font-size: 10px;
+      margin-bottom: 3px
+    }
+
+    .zone-card .field input,
+    .zone-card .field select {
+      padding: 8px 10px;
+      font-size: 12px;
+      border-radius: 6px
+    }
+
+    /* ─── RESULTS / OUTPUT ────────────────────────────── */
+    .result-box {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 18px;
+      margin-top: 14px;
+      font-size: 13px;
+      line-height: 1.7;
+      white-space: pre-wrap;
+      max-height: 500px;
+      overflow-y: auto
+    }
+
+    .result-box::-webkit-scrollbar {
+      width: 6px
+    }
+
+    .result-box::-webkit-scrollbar-thumb {
+      background: var(--border);
+      border-radius: 3px
+    }
+
+    /* ─── PREDICTION TABLE ────────────────────────────── */
+    table.pred {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+      margin-top: 14px
+    }
+
+    table.pred th {
+      text-align: left;
+      padding: 10px 12px;
+      color: var(--text2);
+      font-weight: 500;
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: .5px;
+      border-bottom: 1px solid var(--border)
+    }
+
+    table.pred td {
+      padding: 10px 12px;
+      border-bottom: 1px solid rgba(30, 58, 95, .3)
+    }
+
+    table.pred tr:hover td {
+      background: rgba(56, 189, 248, .03)
+    }
+
+    /* ─── METRIC BADGES ───────────────────────────────── */
+    .metric {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 3px 10px;
+      border-radius: 20px;
+      font-size: 11px;
+      font-weight: 600
+    }
+
+    .metric.good {
+      background: rgba(52, 211, 153, .12);
+      color: #34d399
+    }
+
+    .metric.warn {
+      background: rgba(251, 191, 36, .12);
+      color: #fbbf24
+    }
+
+    .metric.bad {
+      background: rgba(248, 113, 113, .12);
+      color: #f87171
+    }
+
+    /* ─── CHAT MESSAGES ───────────────────────────────── */
+    .chat-area {
+      max-height: 500px;
+      overflow-y: auto;
+      padding: 8px 0
+    }
+
+    .msg {
+      margin-bottom: 14px;
+      display: flex;
+      gap: 10px
+    }
+
+    .msg .avatar {
+      width: 32px;
+      height: 32px;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+      flex-shrink: 0
+    }
+
+    .msg.user .avatar {
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      color: #fff
+    }
+
+    .msg.bot .avatar {
+      background: linear-gradient(135deg, var(--accent3), #059669);
+      color: #fff
+    }
+
+    .msg .bubble {
+      background: var(--surface2);
+      border-radius: 10px;
+      padding: 12px 16px;
+      font-size: 13px;
+      line-height: 1.6;
+      max-width: 90%
+    }
+
+    /* ─── LOADING SPINNER ─────────────────────────────── */
+    .spinner {
+      display: inline-block;
+      width: 16px;
+      height: 16px;
+      border: 2px solid rgba(255, 255, 255, .2);
+      border-top-color: #fff;
+      border-radius: 50%;
+      animation: spin .6s linear infinite
+    }
+
+    @keyframes spin {
+      to {
+        transform: rotate(360deg)
+      }
+    }
+
+    .loading-bar {
+      height: 3px;
+      background: linear-gradient(90deg, var(--accent), var(--accent2), var(--accent3));
+      border-radius: 2px;
+      animation: loading 1.5s infinite;
+      margin-top: 10px
+    }
+
+    @keyframes loading {
+      0% {
+        width: 0
+      }
+
+      50% {
+        width: 80%
+      }
+
+      100% {
+        width: 100%;
+        opacity: 0
+      }
+    }
+
+    /* ─── ITERATION CARDS ─────────────────────────────── */
+    .iter-card {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 16px;
+      margin-bottom: 12px
+    }
+
+    .iter-card.best {
+      border-color: var(--accent3);
+      box-shadow: 0 0 12px rgba(52, 211, 153, .15)
+    }
+
+    .iter-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 8px
+    }
+
+    .iter-badge {
+      font-size: 11px;
+      padding: 4px 12px;
+      border-radius: 20px;
+      font-weight: 600
+    }
+
+    .qos-score {
+      font-size: 20px;
+      font-weight: 700
+    }
+
+    /* ─── HEALTH CARDS ────────────────────────────────── */
+    .health-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+      gap: 16px;
+      margin-bottom: 20px
+    }
+
+    .health-item {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 20px;
+      text-align: center
+    }
+
+    .health-item i {
+      font-size: 24px;
+      margin-bottom: 10px
+    }
+
+    .health-item .val {
+      font-size: 22px;
+      font-weight: 700;
+      margin-bottom: 4px
+    }
+
+    .health-item .lbl {
+      font-size: 11px;
+      color: var(--text2);
+      text-transform: uppercase;
+      letter-spacing: .5px
+    }
+
+    /* ─── ROW HELPERS ─────────────────────────────────── */
+    .row {
+      display: flex;
+      gap: 16px;
+      align-items: flex-end;
+      flex-wrap: wrap
+    }
+
+    .row>* {
+      flex: 1;
+      min-width: 200px
+    }
+
+    .mt {
+      margin-top: 16px
+    }
+
+    .mb {
+      margin-bottom: 16px
+    }
+
+    .flex-end {
+      display: flex;
+      justify-content: flex-end;
+      gap: 8px;
+      margin-top: 16px
+    }
+
+    /* ─── RESPONSIVE ──────────────────────────────────── */
+    @media(max-width:768px) {
+      .main {
+        padding: 16px
+      }
+
+      .nav {
+        padding: 8px 16px 0
+      }
+
+      .header {
+        padding: 12px 16px
+      }
+
+      .zone-grid {
+        grid-template-columns: 1fr
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- ═══════ HEADER ═══════ -->
+  <div class="header">
+    <div class="logo">
+      <i class="fas fa-tower-broadcast"></i>
+      <span>Airport Digital Twin</span>
+    </div>
+    <div class="status" id="headerStatus">
+      <span class="status-dot"></span>
+      <span>Connecting...</span>
+    </div>
+  </div>
+
+  <!-- ═══════ NAV ═══════ -->
+  <div class="nav" id="navTabs">
+    <button class="active" data-tab="dashboard" onclick="switchTab('dashboard')"><i class="fas fa-chart-line"></i>
+      Dashboard</button>
+    <button data-tab="chat" onclick="switchTab('chat')"><i class="fas fa-comments"></i> Chat</button>
+    <button data-tab="ask" onclick="switchTab('ask')"><i class="fas fa-circle-question"></i> Ask KB</button>
+    <button data-tab="optimize" onclick="switchTab('optimize')"><i class="fas fa-bolt"></i> Optimize</button>
+    <button data-tab="deploy" onclick="switchTab('deploy')"><i class="fas fa-rocket"></i> Deploy</button>
+  </div>
+
+  <div class="main">
+
+    <!-- ═══════ DASHBOARD TAB ═══════ -->
+    <div class="panel active" id="tab-dashboard">
+      <div class="health-grid" id="healthGrid">
+        <div class="health-item"><i class="fas fa-heartbeat" style="color:var(--accent3)"></i>
+          <div class="val" id="h-status">—</div>
+          <div class="lbl">System Status</div>
+        </div>
+        <div class="health-item"><i class="fas fa-database" style="color:var(--accent)"></i>
+          <div class="val" id="h-docs">—</div>
+          <div class="lbl">ChromaDB Docs</div>
+        </div>
+        <div class="health-item"><i class="fas fa-brain" style="color:var(--accent2)"></i>
+          <div class="val" id="h-gemini">—</div>
+          <div class="lbl">Gemini AI</div>
+        </div>
+        <div class="health-item"><i class="fas fa-network-wired" style="color:var(--danger)"></i>
+          <div class="val" id="h-gnn">—</div>
+          <div class="lbl">GNN Endpoint</div>
+        </div>
+      </div>
+      <div class="card">
+        <h3><i class="fas fa-sliders"></i> Current Configuration</h3>
+        <div class="row mb">
+          <div><label>Background Traffic (Mbps)</label><input type="number" id="cfg-bg" step="0.1" min="0" max="100" />
+          </div>
+        </div>
+        <div class="zone-grid" id="zoneGrid"></div>
+        <div class="flex-end">
+          <button class="btn btn-outline btn-sm" onclick="resetConfig()"><i class="fas fa-rotate-left"></i> Reset
+            Default</button>
+          <button class="btn btn-primary btn-sm" onclick="testConfig()"><i class="fas fa-play"></i> Test with
+            GNN</button>
+        </div>
+        <div id="gnnResult"></div>
+      </div>
+    </div>
+
+    <!-- ═══════ CHAT TAB ═══════ -->
+    <div class="panel" id="tab-chat">
+      <div class="card">
+        <h3><i class="fas fa-robot"></i> AI Configuration Chat</h3>
+        <p style="font-size:12px;color:var(--text3);margin-bottom:16px">Describe your desired network config in natural
+          language. The AI will generate it and run GNN predictions.</p>
+        <div class="chat-area" id="chatArea"></div>
+        <div class="row mt" style="align-items:center">
+          <div style="flex:5"><textarea id="chatInput" rows="2"
+              placeholder='e.g. "Use heavy model for zone 3 and move it to cloud"'></textarea></div>
+          <div style="flex:0"><button class="btn btn-primary" id="chatSend" onclick="sendChat()"><i
+                class="fas fa-paper-plane"></i></button></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══════ ASK TAB ═══════ -->
+    <div class="panel" id="tab-ask">
+      <div class="card">
+        <h3><i class="fas fa-book-open"></i> Ask the Knowledge Base</h3>
+        <p style="font-size:12px;color:var(--text3);margin-bottom:16px">Ask questions about the airport surveillance
+          network. Answers are grounded in simulation data.</p>
+        <textarea id="askInput" rows="2"
+          placeholder='e.g. "What happens when too many zones use cloud processing?"'></textarea>
+        <div class="flex-end"><button class="btn btn-primary" id="askSend" onclick="sendAsk()"><i
+              class="fas fa-search"></i> Ask</button></div>
+        <div id="askResult"></div>
+      </div>
+    </div>
+
+    <!-- ═══════ OPTIMIZE TAB ═══════ -->
+    <div class="panel" id="tab-optimize">
+      <div class="card">
+        <h3><i class="fas fa-wand-magic-sparkles"></i> AI-Driven Optimization</h3>
+        <p style="font-size:12px;color:var(--text3);margin-bottom:16px">Gemini iteratively generates and refines
+          configs, evaluated by the GNN, to find the best QoS.</p>
+        <div class="row">
+          <div style="flex:4"><label>Optimization Goal</label><textarea id="optInput" rows="2"
+              placeholder='e.g. "minimize packet loss for all zones"'></textarea></div>
+          <div style="flex:1"><label>Max Iterations</label><input type="number" id="optIter" value="4" min="1"
+              max="10" /></div>
+        </div>
+        <div class="flex-end"><button class="btn btn-primary" id="optSend" onclick="sendOptimize()"><i
+              class="fas fa-bolt"></i> Optimize</button></div>
+        <div id="optResult"></div>
+      </div>
+    </div>
+
+    <!-- ═══════ DEPLOY TAB ═══════ -->
+    <div class="panel" id="tab-deploy">
+      <div class="card">
+        <h3><i class="fas fa-rocket"></i> Deploy to NS-3 Simulator</h3>
+        <p style="font-size:12px;color:var(--text3);margin-bottom:16px">Send the best optimized config to the NS-3
+          network simulator for full simulation.</p>
+        <div class="row">
+          <div><label>Simulation Time (seconds)</label><input type="number" id="deployTime" value="10" min="1"
+              max="600" /></div>
+          <div><label>Scenario ID (optional)</label><input type="text" id="deployId"
+              placeholder="auto-generated if empty" /></div>
+        </div>
+        <div class="flex-end"><button class="btn btn-danger" id="deploySend" onclick="sendDeploy()"><i
+              class="fas fa-paper-plane"></i> Deploy</button></div>
+        <div id="deployResult"></div>
+      </div>
+    </div>
+
+  </div><!-- /main -->
+
+  <script>
+    const API = window.location.origin;
+    let currentConfig = null;
+    const DEFAULT = { "background_traffic_mbps": 15.9, "zones": [{ "zone_id": 0, "bitrate_mbps": 7, "priority_class": 2, "model_type": "medium", "processing_location": "edge2" }, { "zone_id": 1, "bitrate_mbps": 7.8, "priority_class": 2, "model_type": "lightweight", "processing_location": "edge3" }, { "zone_id": 2, "bitrate_mbps": 5.9, "priority_class": 3, "model_type": "lightweight", "processing_location": "edge2" }, { "zone_id": 3, "bitrate_mbps": 6.4, "priority_class": 1, "model_type": "medium", "processing_location": "edge3" }, { "zone_id": 4, "bitrate_mbps": 5.9, "priority_class": 1, "model_type": "medium", "processing_location": "cloud" }, { "zone_id": 5, "bitrate_mbps": 7.5, "priority_class": 1, "model_type": "heavy", "processing_location": "edge3" }] };
+
+    // ─── TAB SWITCHING ─────────────────────────────────
+    function switchTab(id) {
+      document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+      document.querySelectorAll('.nav button').forEach(b => b.classList.remove('active'));
+      document.getElementById('tab-' + id).classList.add('active');
+      document.querySelector(`[data-tab="${id}"]`).classList.add('active');
+    }
+
+    // ─── HEALTH ────────────────────────────────────────
+    async function loadHealth() {
+      try {
+        const r = await fetch(API + '/health'); const d = await r.json();
+        document.getElementById('h-status').textContent = d.status === 'ok' ? 'Online' : 'Not Ready';
+        document.getElementById('h-status').style.color = d.status === 'ok' ? 'var(--accent3)' : 'var(--danger)';
+        document.getElementById('h-docs').textContent = d.chromadb_docs.toLocaleString();
+        document.getElementById('h-gemini').textContent = d.gemini === 'ready' ? 'Ready' : '❌';
+        document.getElementById('h-gnn').textContent = d.gnn_url.replace('http://', '');
+        document.getElementById('headerStatus').innerHTML = '<span class="status-dot"></span><span>System Online</span>';
+      } catch (e) {
+        document.getElementById('headerStatus').innerHTML = '<span class="status-dot" style="background:var(--danger);box-shadow:0 0 8px var(--danger)"></span><span>Offline</span>';
+      }
+    }
+
+    // ─── CONFIG EDITOR ─────────────────────────────────
+    function renderConfig(cfg) {
+      currentConfig = JSON.parse(JSON.stringify(cfg));
+      document.getElementById('cfg-bg').value = cfg.background_traffic_mbps;
+      const grid = document.getElementById('zoneGrid');
+      grid.innerHTML = cfg.zones.map(z => `
+    <div class="zone-card">
+      <div class="zone-title"><i class="fas fa-video"></i> Zone ${z.zone_id}</div>
+      <div class="field"><label>Bitrate (Mbps)</label><input type="number" step="0.1" min="1" max="25" value="${z.bitrate_mbps}" onchange="updateZone(${z.zone_id},'bitrate_mbps',parseFloat(this.value))"/></div>
+      <div class="field"><label>Priority</label><select onchange="updateZone(${z.zone_id},'priority_class',parseInt(this.value))">
+        <option value="1"${z.priority_class === 1 ? ' selected' : ''}>1 (High)</option>
+        <option value="2"${z.priority_class === 2 ? ' selected' : ''}>2 (Med)</option>
+        <option value="3"${z.priority_class === 3 ? ' selected' : ''}>3 (Low)</option>
+      </select></div>
+      <div class="field"><label>Model</label><select onchange="updateZone(${z.zone_id},'model_type',this.value)">
+        <option${z.model_type === 'lightweight' ? ' selected' : ''}>lightweight</option>
+        <option${z.model_type === 'medium' ? ' selected' : ''}>medium</option>
+        <option${z.model_type === 'heavy' ? ' selected' : ''}>heavy</option>
+      </select></div>
+      <div class="field"><label>Location</label><select onchange="updateZone(${z.zone_id},'processing_location',this.value)">
+        <option${z.processing_location === 'edge1' ? ' selected' : ''}>edge1</option>
+        <option${z.processing_location === 'edge2' ? ' selected' : ''}>edge2</option>
+        <option${z.processing_location === 'edge3' ? ' selected' : ''}>edge3</option>
+        <option${z.processing_location === 'cloud' ? ' selected' : ''}>cloud</option>
+      </select></div>
+    </div>`).join('');
+    }
+
+    function updateZone(zid, field, val) {
+      const z = currentConfig.zones.find(z => z.zone_id === zid);
+      if (z) z[field] = val;
+    }
+    function readConfig() {
+      currentConfig.background_traffic_mbps = parseFloat(document.getElementById('cfg-bg').value);
+      return currentConfig;
+    }
+    function resetConfig() { renderConfig(DEFAULT); }
+
+    // ─── GNN TEST ──────────────────────────────────────
+    async function testConfig() {
+      const cfg = readConfig(); const el = document.getElementById('gnnResult');
+      el.innerHTML = '<div class="loading-bar"></div>';
+      try {
+        const r = await fetch(API + '/chat', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ message: "keep same config", current_config: cfg }) });
+        const d = await r.json();
+        if (d.gnn_predictions) el.innerHTML = renderPredictions(d.gnn_predictions);
+        else el.innerHTML = `<div class="result-box" style="color:var(--danger)">${d.gnn_error || 'No predictions'}</div>`;
+      } catch (e) { el.innerHTML = `<div class="result-box" style="color:var(--danger)">Error: ${e.message}</div>`; }
+    }
+
+    function renderPredictions(preds) {
+      return `<table class="pred"><thead><tr><th>Zone</th><th>Location</th><th>Throughput</th><th>Packet Loss</th><th>Delay</th><th>Jitter</th></tr></thead><tbody>` +
+        preds.map(p => {
+          const lc = p.packet_loss_rate < 0.01 ? 'good' : p.packet_loss_rate < 0.05 ? 'warn' : 'bad';
+          const dc = p.avg_delay_ms < 50 ? 'good' : p.avg_delay_ms < 100 ? 'warn' : 'bad';
+          return `<tr><td><strong>Zone ${p.zone_id}</strong></td><td>${p.processing_location}</td>
+        <td>${p.throughput_mbps.toFixed(2)} Mbps</td>
+        <td><span class="metric ${lc}">${(p.packet_loss_rate * 100).toFixed(2)}%</span></td>
+        <td><span class="metric ${dc}">${p.avg_delay_ms.toFixed(1)} ms</span></td>
+        <td>${p.jitter_ms.toFixed(3)} ms</td></tr>`;
+        }).join('') + '</tbody></table>';
+    }
+
+    function renderConfigTable(cfg) {
+      let html = `<table class="pred" style="margin-top:10px"><thead><tr><th>Zone</th><th>Bitrate</th><th>Priority</th><th>Model</th><th>Location</th></tr></thead><tbody>`;
+      html += cfg.zones.map(z => `<tr><td><strong>Zone ${z.zone_id}</strong></td><td>${z.bitrate_mbps} Mbps</td><td>${z.priority_class}</td><td>${z.model_type}</td><td>${z.processing_location}</td></tr>`).join('');
+      html += `</tbody></table>`;
+      html += `<p style="font-size:11px;color:var(--text3);margin-top:6px">Background Traffic: ${cfg.background_traffic_mbps} Mbps</p>`;
+      return html;
+    }
+
+    // ─── CHAT ──────────────────────────────────────────
+    async function sendChat() {
+      const msg = document.getElementById('chatInput').value.trim(); if (!msg) return;
+      const area = document.getElementById('chatArea'); const btn = document.getElementById('chatSend');
+      area.innerHTML += `<div class="msg user"><div class="avatar"><i class="fas fa-user"></i></div><div class="bubble">${esc(msg)}</div></div>`;
+      document.getElementById('chatInput').value = ''; btn.disabled = true;
+      area.innerHTML += `<div class="msg bot" id="chatLoading"><div class="avatar"><i class="fas fa-robot"></i></div><div class="bubble"><div class="spinner"></div> Generating...</div></div>`;
+      area.scrollTop = area.scrollHeight;
+      try {
+        const r = await fetch(API + '/chat', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ message: msg, current_config: readConfig() }) });
+        const d = await r.json();
+        document.getElementById('chatLoading').remove();
+        let html = `<div class="msg bot"><div class="avatar"><i class="fas fa-robot"></i></div><div class="bubble">`;
+        if (d.changes && d.changes.length) {
+          html += `<strong>Changes made:</strong><br>` + d.changes.map(c => `• ${c.zone_id !== null && c.zone_id !== undefined ? 'Zone ' + c.zone_id + ' ' : ''}${c.field}: ${c.old_value} → <strong>${c.new_value}</strong>`).join('<br>');
+        } else html += `No changes needed.`;
+        if (d.gnn_predictions) html += '<br><br><strong>GNN Predictions:</strong>' + renderPredictions(d.gnn_predictions);
+        if (d.gnn_error) html += `<br><br><span style="color:var(--danger)">⚠ ${d.gnn_error}</span>`;
+        html += `</div></div>`;
+        area.innerHTML += html;
+        if (d.generated_config) renderConfig(d.generated_config);
+      } catch (e) {
+        document.getElementById('chatLoading').remove();
+        area.innerHTML += `<div class="msg bot"><div class="avatar"><i class="fas fa-robot"></i></div><div class="bubble" style="color:var(--danger)">Error: ${e.message}</div></div>`;
+      }
+      btn.disabled = false; area.scrollTop = area.scrollHeight;
+    }
+
+    // ─── ASK ───────────────────────────────────────────
+    async function sendAsk() {
+      const q = document.getElementById('askInput').value.trim(); if (!q) return;
+      const el = document.getElementById('askResult'); const btn = document.getElementById('askSend');
+      btn.disabled = true; el.innerHTML = '<div class="loading-bar"></div>';
+      try {
+        const r = await fetch(API + '/ask', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ question: q }) });
+        const d = await r.json();
+        let src = ''; if (d.sources && d.sources.length) {
+          src = '<br><br><strong style="font-size:11px;color:var(--text2)">Sources:</strong><br>' + d.sources.map(s => `<span class="metric good" style="margin:2px">${s.scenario_id || s.id} (${(s.similarity * 100).toFixed(0)}%)</span>`).join(' ');
+        }
+        el.innerHTML = `<div class="result-box">${formatAnswer(d.answer)}${src}</div>`;
+      } catch (e) { el.innerHTML = `<div class="result-box" style="color:var(--danger)">Error: ${e.message}</div>`; }
+      btn.disabled = false;
+    }
+
+    // ─── OPTIMIZE ──────────────────────────────────────
+    async function sendOptimize() {
+      const msg = document.getElementById('optInput').value.trim(); if (!msg) return;
+      const el = document.getElementById('optResult'); const btn = document.getElementById('optSend');
+      btn.disabled = true; el.innerHTML = '<div class="loading-bar"></div><p style="color:var(--text2);font-size:13px;margin-top:8px"><i class="fas fa-hourglass-half"></i> Running iterative optimization... this may take a moment.</p>';
+      try {
+        const r = await fetch(API + '/optimize', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ message: msg, current_config: readConfig(), max_iterations: parseInt(document.getElementById('optIter').value) }) });
+        const d = await r.json();
+        window._lastOptBestConfig = d.best_config;
+        let html = `<div style="margin-top:16px"><div class="row mb"><div class="card" style="border-color:var(--accent3)"><h3><i class="fas fa-trophy" style="color:var(--accent3)"></i> Best Result — QoS Score: ${d.best_qos_score.toFixed(4)}</h3>
+      <p style="font-size:12px;color:var(--text2);margin-bottom:8px">${d.total_iterations} iteration(s) ${d.stopped_early ? '(converged early)' : '(all completed)'}</p>`;
+        html += `<h3 style="font-size:13px;margin:12px 0 4px"><i class="fas fa-sliders" style="color:var(--accent)"></i> Best Configuration</h3>`;
+        html += renderConfigTable(d.best_config);
+        if (d.best_predictions) {
+          html += `<h3 style="font-size:13px;margin:16px 0 4px"><i class="fas fa-chart-bar" style="color:var(--accent)"></i> GNN Predictions</h3>`;
+          html += renderPredictions(d.best_predictions);
+        }
+        html += `<div class="flex-end"><button class="btn btn-primary btn-sm" onclick="applyAndDeploy()"><i class="fas fa-rocket"></i> Apply & Deploy</button></div></div></div>`;
+        html += `<h3 style="margin:16px 0 10px;font-size:14px"><i class="fas fa-list-ol" style="color:var(--accent)"></i> Iteration History</h3>`;
+        d.iterations.forEach(it => {
+          const isBest = it.qos_score === d.best_qos_score;
+          html += `<div class="iter-card${isBest ? ' best' : ''}"><div class="iter-header"><div><span class="iter-badge" style="background:var(--surface);color:var(--accent)">Iteration ${it.iteration}</span>${isBest ? ' <span class="metric good">★ Best</span>' : ''}</div><div class="qos-score" style="color:${isBest ? 'var(--accent3)' : 'var(--text2)'}">${it.qos_score.toFixed(4)}</div></div>
+        <p style="font-size:12px;color:var(--text2);margin-top:6px">${esc(it.gemini_assessment).substring(0, 300)}${it.gemini_assessment.length > 300 ? '...' : ''}</p>`;
+          html += `<details style="margin-top:8px"><summary style="font-size:11px;color:var(--accent);cursor:pointer">View Configuration</summary>` + renderConfigTable(it.config) + `</details>`;
+          if (it.predictions) {
+            html += `<details style="margin-top:4px"><summary style="font-size:11px;color:var(--accent);cursor:pointer">View Predictions</summary>` + renderPredictions(it.predictions) + `</details>`;
+          }
+          html += `</div>`;
+        });
+        if (d.gnn_error) html += `<div class="result-box" style="color:var(--danger)">⚠ GNN: ${d.gnn_error}</div>`;
+        html += `</div>`;
+        el.innerHTML = html;
+        if (d.best_config) renderConfig(d.best_config);
+      } catch (e) { el.innerHTML = `<div class="result-box" style="color:var(--danger)">Error: ${e.message}</div>`; }
+      btn.disabled = false;
+    }
+
+    async function applyAndDeploy() {
+      if (!window._lastOptBestConfig) return;
+      renderConfig(window._lastOptBestConfig);
+      const el = document.getElementById('optResult');
+      el.insertAdjacentHTML('beforeend', '<div class="loading-bar" id="deployingBar"></div><p id="deployingMsg" style="color:var(--text2);font-size:13px;margin-top:8px"><i class="fas fa-rocket"></i> Deploying to NS-3 with 10s simulation time...</p>');
+      try {
+        const r = await fetch(API + '/deploy', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ simulation_time: 10 }) });
+        const bar = document.getElementById('deployingBar');
+        const msg = document.getElementById('deployingMsg');
+        if (bar) bar.remove();
+        if (!r.ok) { const err = await r.json(); throw new Error(err.detail || r.statusText); }
+        const d = await r.json();
+        if (msg) msg.outerHTML = `<div class="card mt" style="border-color:var(--accent3)"><h3><i class="fas fa-check-circle" style="color:var(--accent3)"></i> Deployment Successful</h3><div class="result-box">${JSON.stringify(d.ns3_result, null, 2)}</div></div>`;
+      } catch (e) {
+        const bar = document.getElementById('deployingBar');
+        const msg = document.getElementById('deployingMsg');
+        if (bar) bar.remove();
+        if (msg) msg.outerHTML = `<div class="result-box mt" style="color:var(--danger)">❌ Deploy failed: ${e.message}</div>`;
+      }
+    }
+
+    // ─── DEPLOY ────────────────────────────────────────
+    async function sendDeploy() {
+      const el = document.getElementById('deployResult'); const btn = document.getElementById('deploySend');
+      btn.disabled = true; el.innerHTML = '<div class="loading-bar"></div><p style="color:var(--text2);font-size:13px;margin-top:8px"><i class="fas fa-satellite-dish"></i> Running NS-3 simulation...</p>';
+      const body = { simulation_time: parseFloat(document.getElementById('deployTime').value) };
+      const sid = document.getElementById('deployId').value.trim(); if (sid) body.scenario_id = sid;
+      try {
+        const r = await fetch(API + '/deploy', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
+        if (!r.ok) { const err = await r.json(); throw new Error(err.detail || r.statusText); }
+        const d = await r.json();
+        el.innerHTML = `<div class="card mt" style="border-color:var(--accent3)"><h3><i class="fas fa-check-circle" style="color:var(--accent3)"></i> Deployment Successful</h3><div class="result-box">${JSON.stringify(d.ns3_result, null, 2)}</div></div>`;
+      } catch (e) { el.innerHTML = `<div class="result-box mt" style="color:var(--danger)">❌ ${e.message}</div>`; }
+      btn.disabled = false;
+    }
+
+    // ─── UTILS ─────────────────────────────────────────
+    function esc(s) { const d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
+    function formatAnswer(t) { return t.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>').replace(/\n/g, '<br>'); }
+
+    // ─── ENTER KEY BINDINGS ────────────────────────────
+    document.getElementById('chatInput').addEventListener('keydown', e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendChat(); } });
+    document.getElementById('askInput').addEventListener('keydown', e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendAsk(); } });
+
+    // ─── INIT ──────────────────────────────────────────
+    renderConfig(DEFAULT);
+    loadHealth();
+    setInterval(loadHealth, 30000);
+  </script>
+</body>
+
+</html>
