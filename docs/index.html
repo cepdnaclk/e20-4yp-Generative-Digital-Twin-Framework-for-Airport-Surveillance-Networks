@@ -1,0 +1,798 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Generative Digital Twin for Airport Surveillance</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=IBM+Plex+Sans:ital,wght@0,300;0,400;0,500;0,600;1,300&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --accent-primary: #ffffff;
+            --accent-secondary: #d1d5db;
+            --accent-highlight: #ffe44d;
+            --accent-highlight-dim: rgba(255, 228, 77, 0.18);
+            --accent-highlight-glow: rgba(255, 228, 77, 0.45);
+            --text-main: #f8fafc;
+            --text-muted: #9aa3af;
+            --glass-bg: rgba(255, 255, 255, 0.045);
+            --glass-bg-light: rgba(255, 255, 255, 0.085);
+            --glass-bg-hover: rgba(255, 255, 255, 0.11);
+            --glass-border: rgba(255, 255, 255, 0.11);
+            --glass-border-strong: rgba(255, 255, 255, 0.22);
+            --glass-border-gold: rgba(255, 228, 77, 0.28);
+            --font-display: 'Syne', 'Segoe UI', sans-serif;
+            --font-body: 'IBM Plex Sans', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            --shadow-soft: rgba(0, 0, 0, 0.45);
+            --shadow-strong: rgba(0, 0, 0, 0.65);
+            --shadow-gold: rgba(255, 228, 77, 0.12);
+        }
+
+        *, *::before, *::after { box-sizing: border-box; }
+
+        html { scroll-behavior: smooth; }
+
+        body {
+            font-family: var(--font-body);
+            background: #050507;
+            color: var(--text-main);
+            line-height: 1.75;
+            margin: 0;
+            padding: 0;
+            overflow-x: hidden;
+        }
+
+        /* ── Background mesh ── */
+        body::before {
+            content: '';
+            position: fixed;
+            inset: 0;
+            background:
+                radial-gradient(ellipse 70% 55% at 15% 20%, rgba(255,228,77,0.045) 0%, transparent 60%),
+                radial-gradient(ellipse 60% 50% at 85% 75%, rgba(255,255,255,0.025) 0%, transparent 60%),
+                radial-gradient(ellipse 50% 40% at 50% 50%, rgba(255,228,77,0.018) 0%, transparent 55%);
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        /* Subtle grid texture */
+        body::after {
+            content: '';
+            position: fixed;
+            inset: 0;
+            background-image: linear-gradient(rgba(255,255,255,0.018) 1px, transparent 1px),
+                              linear-gradient(90deg, rgba(255,255,255,0.018) 1px, transparent 1px);
+            background-size: 80px 80px;
+            pointer-events: none;
+            z-index: 0;
+            mask-image: radial-gradient(ellipse 80% 80% at 50% 50%, black 0%, transparent 100%);
+        }
+
+        /* ── Glassmorphism Utility ── */
+        .glass-panel {
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px) saturate(1.4);
+            -webkit-backdrop-filter: blur(20px) saturate(1.4);
+            border: 1px solid var(--glass-border);
+            border-radius: 24px;
+            box-shadow:
+                0 8px 40px 0 var(--shadow-soft),
+                inset 0 1px 0 rgba(255,255,255,0.08);
+            position: relative;
+            z-index: 1;
+        }
+
+        /* ── Navigation ── */
+        nav {
+            position: sticky;
+            top: 18px;
+            z-index: 100;
+            margin: 0 auto 48px auto;
+            max-width: 680px;
+            padding: 0 20px;
+        }
+
+        .nav-container {
+            display: flex;
+            justify-content: center;
+            gap: 6px;
+            padding: 8px 10px;
+            background: rgba(10, 10, 14, 0.72);
+            backdrop-filter: blur(24px);
+            -webkit-backdrop-filter: blur(24px);
+            border: 1px solid var(--glass-border);
+            border-radius: 50px;
+            box-shadow: 0 4px 24px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.07);
+        }
+
+        nav a {
+            color: var(--text-muted);
+            text-decoration: none;
+            font-family: var(--font-body);
+            font-weight: 500;
+            font-size: 0.82rem;
+            letter-spacing: 0.6px;
+            text-transform: uppercase;
+            padding: 7px 16px;
+            border-radius: 50px;
+            transition: color 0.25s, background 0.25s;
+        }
+
+        nav a:hover {
+            color: var(--accent-primary);
+            background: rgba(255,255,255,0.08);
+        }
+
+        /* ── Hero Header ── */
+        header {
+            text-align: center;
+            padding: 90px 24px 56px;
+            max-width: 100%;
+            margin: 0 auto;
+            position: relative;
+            overflow: visible;
+            z-index: 1;
+        }
+
+        .header-content {
+            position: relative;
+            z-index: 4;
+            max-width: 860px;
+            margin: 0 auto;
+        }
+
+        /* Glow halo behind the title */
+        .header-content::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 600px;
+            height: 200px;
+            background: radial-gradient(ellipse at center, rgba(255,228,77,0.07) 0%, transparent 70%);
+            pointer-events: none;
+            z-index: -1;
+        }
+
+        /* Thin gold rule above title */
+        .header-eyebrow {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            font-family: var(--font-body);
+            font-size: 0.72rem;
+            font-weight: 600;
+            letter-spacing: 2.5px;
+            text-transform: uppercase;
+            color: var(--accent-highlight);
+            opacity: 0.85;
+            margin-bottom: 18px;
+        }
+
+        .header-eyebrow::before,
+        .header-eyebrow::after {
+            content: '';
+            width: 32px;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, var(--accent-highlight));
+            opacity: 0.5;
+        }
+        .header-eyebrow::after { background: linear-gradient(90deg, var(--accent-highlight), transparent); }
+
+        h1 {
+            font-family: var(--font-display);
+            font-size: clamp(2.2rem, 4.5vw, 3.6rem);
+            font-weight: 700;
+            margin: 0 0 18px 0;
+            line-height: 1.15;
+            color: var(--accent-primary);
+            letter-spacing: -0.5px;
+        }
+
+        /* Golden shimmer on the key word */
+        h1 .title-accent {
+            background: linear-gradient(135deg, #fff7bf 0%, var(--accent-highlight) 45%, #ffd700 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .subtitle {
+            font-family: var(--font-body);
+            font-size: 1.1rem;
+            color: var(--text-muted);
+            margin-bottom: 0;
+            font-weight: 300;
+            letter-spacing: 0.2px;
+        }
+
+        /* ── Airplane fleet ── */
+        .aircraft-fleet {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            pointer-events: none;
+            z-index: 3;
+        }
+
+        .fleet-plane {
+            position: absolute;
+            color: var(--accent-highlight);
+            font-size: 1.4rem;
+            text-shadow:
+                0 0 10px rgba(255, 228, 77, 0.6),
+                0 0 28px rgba(255, 228, 77, 0.25);
+            opacity: 0;
+            animation-fill-mode: both;
+        }
+
+        /* Sizes for depth */
+        .fleet-plane.sz-sm { font-size: 1rem; opacity: 0.55; }
+        .fleet-plane.sz-md { font-size: 1.4rem; opacity: 0.8; }
+        .fleet-plane.sz-lg { font-size: 1.8rem; opacity: 0.95; }
+
+        /* Trail effect via pseudo */
+        .fleet-plane.trail::after {
+            content: '';
+            position: absolute;
+            right: 100%;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 28px;
+            height: 1px;
+            background: linear-gradient(to left, rgba(255,228,77,0.35), transparent);
+        }
+
+        /* Two layers — background row (smaller, dimmer) */
+        .fp-bg1  { left: 5%;  animation: driftBg  8.2s ease-in-out infinite; animation-delay: 0s;   }
+        .fp-bg2  { left: 22%; animation: driftBg  9.5s ease-in-out infinite; animation-delay: 1.3s; }
+        .fp-bg3  { left: 41%; animation: driftBg  8.8s ease-in-out infinite; animation-delay: 2.6s; }
+        .fp-bg4  { left: 61%; animation: driftBg  9.1s ease-in-out infinite; animation-delay: 0.8s; }
+        .fp-bg5  { left: 80%; animation: driftBg  8.4s ease-in-out infinite; animation-delay: 1.9s; }
+
+        /* Foreground row (larger, brighter, orbit-style) */
+        .fp-fg1  { left: 11%; animation: orbitA   7.0s ease-in-out infinite; animation-delay: 0.4s; }
+        .fp-fg2  { left: 32%; animation: orbitB   7.8s ease-in-out infinite; animation-delay: 1.8s; }
+        .fp-fg3  { left: 50%; animation: orbitC   6.8s ease-in-out infinite; animation-delay: 0.9s; }
+        .fp-fg4  { left: 69%; animation: orbitA   7.4s ease-in-out infinite; animation-delay: 2.4s; }
+        .fp-fg5  { left: 88%; animation: orbitB   7.1s ease-in-out infinite; animation-delay: 1.1s; }
+
+        @keyframes driftBg {
+            0%   { top: 60px;  opacity: 0.22; transform: rotate(-8deg)  scale(0.9); }
+            30%  { opacity: 0.35; }
+            50%  { top: 30px;  opacity: 0.3;  transform: rotate(2deg)   scale(0.92); }
+            70%  { opacity: 0.35; }
+            100% { top: 60px;  opacity: 0.22; transform: rotate(-8deg)  scale(0.9); }
+        }
+
+        @keyframes orbitA {
+            0%   { top: 100px; opacity: 0.0;  transform: rotate(-15deg) scale(0.85); }
+            10%  { opacity: 0.85; }
+            50%  { top: 28px;  opacity: 1.0;  transform: rotate(0deg)   scale(1.05); }
+            90%  { opacity: 0.85; }
+            100% { top: 100px; opacity: 0.0;  transform: rotate(-15deg) scale(0.85); }
+        }
+
+        @keyframes orbitB {
+            0%   { top: 20px;  opacity: 0.0;  transform: rotate(12deg)  scale(0.9); }
+            10%  { opacity: 0.75; }
+            50%  { top: 75px;  opacity: 0.95; transform: rotate(-4deg)  scale(1.05); }
+            90%  { opacity: 0.75; }
+            100% { top: 20px;  opacity: 0.0;  transform: rotate(12deg)  scale(0.9); }
+        }
+
+        @keyframes orbitC {
+            0%   { top: 50px;  opacity: 0.0;  transform: rotate(-5deg)  scale(0.88); }
+            10%  { opacity: 0.9; }
+            50%  { top: 18px;  opacity: 1.0;  transform: rotate(8deg)   scale(1.08); }
+            90%  { opacity: 0.9; }
+            100% { top: 50px;  opacity: 0.0;  transform: rotate(-5deg)  scale(0.88); }
+        }
+
+        /* ── Main content ── */
+        main {
+            max-width: 1180px;
+            margin: 0 auto 80px auto;
+            padding: 0 24px;
+            position: relative;
+            z-index: 1;
+        }
+
+        section {
+            padding: 48px 56px;
+            margin-bottom: 28px;
+            transition: border-color 0.35s;
+        }
+
+        section:hover {
+            border-color: var(--glass-border-strong);
+        }
+
+        /* Subtle inner shine at top of each card */
+        section::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 30px; right: 30px;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.12), transparent);
+            border-radius: 50%;
+        }
+
+        h2 {
+            font-family: var(--font-display);
+            color: var(--accent-primary);
+            border-bottom: 1px solid var(--glass-border);
+            padding-bottom: 14px;
+            margin-top: 0;
+            font-size: 1.75rem;
+            font-weight: 700;
+            letter-spacing: -0.3px;
+        }
+
+        p { color: var(--text-muted); margin-top: 0; }
+
+        strong {
+            color: var(--accent-highlight);
+            font-weight: 600;
+        }
+
+        /* ── Images ── */
+        figure {
+            margin: 44px 0;
+            text-align: center;
+        }
+
+        figure img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 16px;
+            box-shadow: 0 12px 48px var(--shadow-strong), 0 0 0 1px var(--glass-border);
+        }
+
+        figcaption {
+            margin-top: 14px;
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            font-style: italic;
+            opacity: 0.75;
+        }
+
+        /* ── Method Cards ── */
+        .grid-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+            margin-top: 32px;
+        }
+
+        .method-card {
+            background: var(--glass-bg-light);
+            border: 1px solid var(--glass-border);
+            padding: 28px;
+            border-radius: 18px;
+            transition: transform 0.3s ease, border-color 0.3s, box-shadow 0.3s;
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* gold top accent bar on card */
+        .method-card::after {
+            content: '';
+            position: absolute;
+            top: 0; left: 20%; right: 20%;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, var(--accent-highlight), transparent);
+            opacity: 0;
+            transition: opacity 0.3s;
+            border-radius: 2px;
+        }
+
+        .method-card:hover {
+            transform: translateY(-6px);
+            border-color: var(--glass-border-gold);
+            box-shadow: 0 16px 40px var(--shadow-strong), 0 0 24px var(--shadow-gold);
+        }
+
+        .method-card:hover::after { opacity: 1; }
+
+        .method-card h4 {
+            margin-top: 0;
+            color: var(--accent-primary);
+            font-family: var(--font-display);
+            font-size: 1.1rem;
+            font-weight: 600;
+            letter-spacing: -0.2px;
+        }
+
+        /* ── Highlight / Metrics box ── */
+        .highlight-box {
+            background: rgba(255, 228, 77, 0.025);
+            border: 1px solid rgba(255,228,77,0.16);
+            border-left: 3px solid var(--accent-highlight);
+            padding: 28px 34px;
+            border-radius: 6px 18px 18px 6px;
+            margin-top: 32px;
+        }
+
+        .highlight-box h4 {
+            margin-top: 0;
+            color: var(--accent-primary);
+            font-family: var(--font-display);
+            font-size: 1.1rem;
+            font-weight: 600;
+            letter-spacing: 0.3px;
+        }
+
+        .highlight-box ul {
+            margin: 0;
+            padding-left: 18px;
+            color: var(--text-muted);
+        }
+
+        .highlight-box li { margin-bottom: 14px; line-height: 1.7; }
+        .highlight-box li:last-child { margin-bottom: 0; }
+
+        /* ── Yellow highlight pill ── */
+        .hl-yellow {
+            color: #0f0e00;
+            background: linear-gradient(100deg, #fff7bf 0%, var(--accent-highlight) 60%, #ffd700 100%);
+            border-radius: 999px;
+            padding: 1px 9px;
+            font-weight: 700;
+            font-size: 0.93em;
+            box-shadow: 0 1px 8px rgba(255,228,77,0.3), inset 0 -1px 0 rgba(0,0,0,0.12);
+        }
+
+        /* ── Team Cards ── */
+        .team-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 20px;
+            margin-top: 32px;
+        }
+
+        .person-card {
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            border-radius: 18px;
+            padding: 32px 24px;
+            text-align: center;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(8px);
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* faint radial glow inside card on hover */
+        .person-card::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: radial-gradient(ellipse at 50% 0%, rgba(255,228,77,0.06) 0%, transparent 65%);
+            opacity: 0;
+            transition: opacity 0.35s;
+            border-radius: inherit;
+        }
+
+        .person-card:hover {
+            transform: translateY(-8px);
+            background: var(--glass-bg-hover);
+            border-color: var(--glass-border-gold);
+            box-shadow: 0 20px 48px var(--shadow-strong), 0 0 24px var(--shadow-gold);
+        }
+
+        .person-card:hover::before { opacity: 1; }
+
+        .person-card h3 {
+            margin: 0 0 6px 0;
+            color: var(--text-main);
+            font-family: var(--font-display);
+            font-size: 1.15rem;
+            font-weight: 600;
+        }
+
+        .role-tag {
+            display: inline-block;
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            letter-spacing: 1.2px;
+            color: rgba(0,0,0,0.85);
+            background: rgba(209,213,219,0.9);
+            padding: 4px 12px;
+            border-radius: 20px;
+            margin-bottom: 16px;
+            font-weight: 700;
+        }
+
+        .super-tag {
+            background: linear-gradient(110deg, #fff7bf, var(--accent-highlight));
+            color: rgba(0,0,0,0.85);
+            box-shadow: 0 2px 10px rgba(255,228,77,0.25);
+        }
+
+        .person-card p {
+            margin: 5px 0;
+            font-size: 0.875rem;
+            color: var(--text-muted);
+        }
+
+        .person-card a {
+            color: var(--text-muted);
+            text-decoration: none;
+            font-size: 0.875rem;
+            transition: color 0.2s;
+        }
+
+        .person-card a:hover { color: var(--accent-primary); }
+
+        /* ── Buttons ── */
+        .btn {
+            display: inline-block;
+            background: var(--glass-bg-light);
+            border: 1px solid var(--glass-border);
+            color: var(--accent-primary);
+            padding: 12px 26px;
+            border-radius: 50px;
+            text-decoration: none;
+            font-family: var(--font-body);
+            font-weight: 500;
+            font-size: 0.9rem;
+            letter-spacing: 0.3px;
+            margin: 8px 8px 8px 0;
+            transition: all 0.28s;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: radial-gradient(ellipse at 50% 0%, rgba(255,255,255,0.08), transparent 70%);
+            opacity: 0;
+            transition: opacity 0.28s;
+        }
+
+        .btn:hover {
+            background: rgba(255,255,255,0.1);
+            border-color: rgba(255,255,255,0.3);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(0,0,0,0.35);
+        }
+
+        .btn:hover::before { opacity: 1; }
+
+        /* ── Footer ── */
+        footer {
+            text-align: center;
+            padding: 44px 20px;
+            color: var(--text-muted);
+            font-size: 0.85rem;
+            border-top: 1px solid var(--glass-border);
+            background: rgba(0,0,0,0.35);
+            letter-spacing: 0.2px;
+            position: relative;
+            z-index: 1;
+        }
+
+        footer p { color: var(--text-muted); margin: 4px 0; }
+
+        /* ── Scroll-reveal fade-in ── */
+        .glass-panel {
+            opacity: 0;
+            transform: translateY(22px);
+            transition: opacity 0.6s ease, transform 0.6s ease;
+        }
+
+        .glass-panel.revealed {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* ── Responsive ── */
+        @media (max-width: 768px) {
+            h1 { font-size: 2rem; }
+            section { padding: 32px 24px; }
+            .nav-container { gap: 2px; }
+            nav a { padding: 6px 10px; font-size: 0.75rem; }
+            .fleet-plane { font-size: 1.1rem; }
+        }
+    </style>
+</head>
+<body>
+
+    <nav>
+        <div class="nav-container">
+            <a href="#abstract">Abstract</a>
+            <a href="#architecture">Architecture</a>
+            <a href="#implementation">Implementation</a>
+            <a href="#results">Results</a>
+            <a href="#team">Team</a>
+        </div>
+    </nav>
+
+    <header>
+        <!-- Background plane layer -->
+        <div class="aircraft-fleet" aria-hidden="true">
+            <span class="fleet-plane sz-sm fp-bg1">✈</span>
+            <span class="fleet-plane sz-sm fp-bg2">✈</span>
+            <span class="fleet-plane sz-sm fp-bg3">✈</span>
+            <span class="fleet-plane sz-sm fp-bg4">✈</span>
+            <span class="fleet-plane sz-sm fp-bg5">✈</span>
+            <!-- Foreground plane layer -->
+            <span class="fleet-plane sz-lg trail fp-fg1">✈</span>
+            <span class="fleet-plane sz-md trail fp-fg2">✈</span>
+            <span class="fleet-plane sz-lg trail fp-fg3">✈</span>
+            <span class="fleet-plane sz-md trail fp-fg4">✈</span>
+            <span class="fleet-plane sz-lg trail fp-fg5">✈</span>
+        </div>
+
+        <div class="header-content">
+            <div class="header-eyebrow">Research Project · Computer Engineering</div>
+            <h1>Generative <span class="title-accent">Digital Twin</span> Framework<br>for Airport Surveillance</h1>
+            <p class="subtitle">Integrating Graph Neural Networks and LLM-Driven AIOps</p>
+        </div>
+    </header>
+
+    <main>
+        <section id="abstract" class="glass-panel">
+            <h2>The Challenge: Securing Critical Infrastructure</h2>
+            <p>Modern airport surveillance networks are highly critical infrastructures that face massive bandwidth constraints as they scale to support hundreds of high-definition cameras and IoT sensors. Traditional manual troubleshooting by network administrators is fundamentally reactive, relying on static CLI interventions that are often too slow, risking critical video feed loss during congestion events.</p>
+            <p><strong>Our Solution:</strong> We built a distributed, generative <span class="hl-yellow">Digital Twin</span>—a high-fidelity virtual replica of the airport's network. By combining Graph Neural Networks (GNNs) for rapid performance prediction with a Large Language Model (LLM) utilizing Retrieval-Augmented Generation (RAG), administrators can now manage complex camera networks using simple, natural language commands. Before any AI-generated JSON configuration is deployed, the GNN acts as a strict mathematical guardrail to pre-verify that the changes are physically safe.</p>
+        </section>
+
+        <section id="architecture" class="glass-panel">
+            <h2>System Architecture &amp; Methodology</h2>
+            <p>Our system operates in a continuous, closed-loop cycle consisting of three core technological pillars designed to bridge the gap between natural language intents and strict network physics:</p>
+            
+            <div class="grid-cards">
+                <div class="method-card">
+                    <h4>1. High-Fidelity Data Plane</h4>
+                    <p>We utilized the <strong>ns-3 discrete-event simulator</strong> to create a realistic physical baseline, generating <span class="hl-yellow">1,000 unique scenarios</span>. This data captures continuous UDP datagrams, bursty TCP background traffic, hardware failures, and weather-induced edge degradations.</p>
+                </div>
+                <div class="method-card">
+                    <h4>2. Predictive AI (ZoneAwareGNN)</h4>
+                    <p>Our custom <strong>Graph Attention Network (GATv2)</strong> formulates the network state as a directed graph. Utilizing 4 independent attention heads and a 128-dimensional latent space, it predicts continuous Quality of Service (QoS) metrics like latency, jitter, throughput, and packet loss.</p>
+                </div>
+                <div class="method-card">
+                    <h4>3. Generative AIOps Pipeline</h4>
+                    <p>A ChromaDB vector database stores <strong>7,004 embedded historical network states</strong>. When an administrator issues a command, the <strong>Gemini 2.5 Flash-Lite LLM</strong> retrieves this context to autonomously synthesize and iteratively evaluate safe JSON configurations.</p>
+                </div>
+            </div>
+
+            <figure>
+                <img src="images/architecture.png" alt="High-level system architecture of the Generative Digital Twin">
+                <figcaption><strong>Figure 1:</strong> High-level system architecture detailing the closed-loop optimization workflow. The AIOps Orchestrator iteratively leverages the LLM for configuration generation and the ZoneAwareGNN for physical verification prior to deployment.</figcaption>
+            </figure>
+        </section>
+
+        <section id="implementation" class="glass-panel">
+            <h2>Experiment Setup &amp; Topology</h2>
+            <p>The physical network was modeled using a hierarchical topology representing an airport's edge-to-cloud infrastructure. It comprises <span class="hl-yellow">52 specialized nodes</span>: 50 high-definition endpoint cameras uniformly distributed across five operational zones, sending data through an aggregation core gateway multiplexer to a central Cloud/NOC server.</p>
+            <p>To accurately simulate congestion and force network bottlenecks, intra-airport Edge-to-Core links were over-provisioned at 10 Gbps, while the critical Core-to-Cloud WAN link was strictly bottlenecked at <span class="hl-yellow">1 Gbps</span> using an Active Queue Management (AQM) CoDel algorithm. The entire architecture was deployed as a distributed microservices environment using FastAPI, strictly separating the heavy C++ ns-3 simulation engine from the PyTorch inference servers to ensure rapid, enterprise-grade scalability.</p>
+        </section>
+
+        <section id="results" class="glass-panel">
+            <h2>Results and Analysis</h2>
+            <p>Our digital twin successfully distills days of complex packet-level physics into a neural network capable of performing predictive evaluations in mere milliseconds. The multi-task regression model achieved stable convergence across 80 epochs, utilizing a custom weighted Mean Squared Error (MSE) loss function to balance highly varied metric scales.</p>
+            
+            <figure>
+                <img src="images/loss-curves.png" alt="Training and Test loss curves over epochs">
+                <figcaption><strong>Figure 2:</strong> Training and Test loss curves over 80 epochs, demonstrating stable convergence of our multi-head regression GNN architecture.</figcaption>
+            </figure>
+
+            <figure>
+                <img src="images/gnn-performance.png" alt="GNN Predictive Performance: Actual vs. Predicted">
+                <figcaption><strong>Figure 3:</strong> GNN Predictive Performance: Actual vs. Predicted values for Latency, Throughput, Packet Loss, and Jitter across the test dataset.</figcaption>
+            </figure>
+
+            <div class="highlight-box">
+                <h4>Key Performance Metrics</h4>
+                <ul>
+                    <li><strong>Critical Congestion Recall:</strong> The GNN successfully flagged <span class="hl-yellow">100.00%</span> of critical congestion states (&gt;15.0% packet loss), ensuring the AI orchestrator is always invoked before video feeds drop.</li>
+                    <li><strong>Ultra-Low Latency Inference:</strong> A single forward-pass inference request to the PyTorch GNN averages just <span class="hl-yellow">28.1 ms</span>, while ChromaDB context retrieval averages <span class="hl-yellow">42.5 ms</span>.</li>
+                    <li><strong>Rapid Incident Response:</strong> The total operational latency—from a user typing a natural language command to the AI generating, verifying, and deploying a safe network configuration—averages just <span class="hl-yellow">4.2 seconds</span>.</li>
+                    <li><strong>Optimization Efficiency:</strong> The LLM's cognitive evaluator loop reaches a mathematically stable termination decision in an average of <span class="hl-yellow">2.4 iterations</span>.</li>
+                    <li><strong>Jitter Prediction Accuracy:</strong> Despite the chaotic micro-bursts of simulated TCP traffic, absolute error for network jitter remained highly bounded at just <span class="hl-yellow">0.056 ms</span>.</li>
+                </ul>
+            </div>
+        </section>
+
+        <section id="team" class="glass-panel">
+            <h2>Project Team &amp; Supervisors</h2>
+            <p>Meet the engineers and academics behind the Generative Digital Twin Framework.</p>
+            
+            <div class="team-grid">
+                <div class="person-card">
+                    <span class="role-tag">Undergraduate</span>
+                    <h3>Kusal Jayawardhana</h3>
+                    <p>E/20/179</p>
+                    <p><a href="mailto:e20179@eng.pdn.ac.lk">e20179@eng.pdn.ac.lk</a></p>
+                </div>
+                
+                <div class="person-card">
+                    <span class="role-tag">Undergraduate</span>
+                    <h3>Supun Dulara</h3>
+                    <p>E/20/087</p>
+                    <p><a href="mailto:e20087@eng.pdn.ac.lk">e20087@eng.pdn.ac.lk</a></p>
+                </div>
+
+                <div class="person-card">
+                    <span class="role-tag">Undergraduate</span>
+                    <h3>Sahith Hasantha</h3>
+                    <p>E/20/131</p>
+                    <p><a href="mailto:e20131@eng.pdn.ac.lk">e20131@eng.pdn.ac.lk</a></p>
+                </div>
+
+                <div class="person-card">
+                    <span class="role-tag super-tag">Supervisor</span>
+                    <h3>Dr. Upul Jayasinghe</h3>
+                    <p>Department of Computer Engineering</p>
+                    <p><a href="mailto:upuljm@eng.pdn.ac.lk">upuljm@eng.pdn.ac.lk</a></p>
+                </div>
+
+                <div class="person-card">
+                    <span class="role-tag super-tag">Supervisor</span>
+                    <h3>Dr. Suneth Namal</h3>
+                    <p>Department of Computer Engineering</p>
+                    <p><a href="mailto:namal@eng.pdn.ac.lk">namal@eng.pdn.ac.lk</a></p>
+                </div>
+            </div>
+        </section>
+
+        <section id="links" class="glass-panel" style="text-align: center;">
+            <h2>Project Links &amp; Resources</h2>
+            <p>Explore our code repository and departmental links below.</p>
+            <div style="margin-top: 28px;">
+                <a href="https://github.com/cepdnaclk/e20-4yp-generative-digital-twin-framework-for-airport-surveillance-networks" class="btn" target="_blank">GitHub Repository</a>
+                <a href="http://www.ce.pdn.ac.lk/" class="btn" target="_blank">Dept. of Computer Engineering</a>
+                <a href="https://eng.pdn.ac.lk/" class="btn" target="_blank">University of Peradeniya</a>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <p>Generative Digital Twin Framework for Airport Surveillance Networks</p>
+        <p>Department of Computer Engineering · University of Peradeniya · Sri Lanka</p>
+    </footer>
+
+    <script>
+        // Scroll-reveal for glass panels
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach((entry, i) => {
+                if (entry.isIntersecting) {
+                    setTimeout(() => {
+                        entry.target.classList.add('revealed');
+                    }, i * 60);
+                    observer.unobserve(entry.target);
+                }
+            });
+        }, { threshold: 0.07 });
+
+        document.querySelectorAll('.glass-panel').forEach(el => observer.observe(el));
+
+        // Nav active highlight on scroll
+        const sections = document.querySelectorAll('section[id]');
+        const navLinks = document.querySelectorAll('nav a');
+        window.addEventListener('scroll', () => {
+            let current = '';
+            sections.forEach(sec => {
+                if (window.scrollY >= sec.offsetTop - 140) current = sec.id;
+            });
+            navLinks.forEach(link => {
+                link.style.color = link.getAttribute('href') === '#' + current
+                    ? 'var(--accent-primary)'
+                    : '';
+                link.style.background = link.getAttribute('href') === '#' + current
+                    ? 'rgba(255,255,255,0.09)'
+                    : '';
+            });
+        }, { passive: true });
+    </script>
+
+</body>
+</html>
