@@ -89,208 +89,314 @@
             top: 18px;
             z-index: 100;
             margin: 0 auto 48px auto;
-            max-width: 680px;
-            padding: 0 20px;
+            max-width: 920px;
+            padding: 0 24px;
         }
 
         .nav-container {
             display: flex;
             justify-content: center;
             gap: 6px;
-            padding: 8px 10px;
-            background: rgba(10, 10, 14, 0.72);
-            backdrop-filter: blur(24px);
-            -webkit-backdrop-filter: blur(24px);
-            border: 1px solid var(--glass-border);
+            padding: 10px 16px;
+            background: rgba(8, 8, 12, 0.88);
+            backdrop-filter: blur(32px) saturate(1.6);
+            -webkit-backdrop-filter: blur(32px) saturate(1.6);
+            border: 1px solid rgba(255, 228, 77, 0.18);
             border-radius: 50px;
-            box-shadow: 0 4px 24px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.07);
+            box-shadow:
+                0 6px 32px rgba(0,0,0,0.65),
+                0 1px 0 rgba(255,255,255,0.06) inset,
+                0 0 0 1px rgba(255,255,255,0.05) inset,
+                0 0 24px rgba(255,228,77,0.06);
         }
 
         nav a {
-            color: var(--text-muted);
+            color: rgba(200, 210, 220, 0.75);
             text-decoration: none;
             font-family: var(--font-body);
             font-weight: 500;
-            font-size: 0.82rem;
-            letter-spacing: 0.6px;
+            font-size: 0.875rem;
+            letter-spacing: 0.7px;
             text-transform: uppercase;
-            padding: 7px 16px;
+            padding: 9px 20px;
             border-radius: 50px;
-            transition: color 0.25s, background 0.25s;
+            transition: color 0.22s, background 0.22s, box-shadow 0.22s, text-shadow 0.22s;
+            position: relative;
         }
 
         nav a:hover {
-            color: var(--accent-primary);
-            background: rgba(255,255,255,0.08);
+            color: #ffffff;
+            background: rgba(255, 255, 255, 0.1);
+            text-shadow: 0 0 12px rgba(255,228,77,0.35);
+            box-shadow: inset 0 1px 0 rgba(255,255,255,0.1);
         }
 
         /* ── Hero Header ── */
         header {
             text-align: center;
-            padding: 90px 24px 56px;
+            padding: 130px 24px 80px;
             max-width: 100%;
             margin: 0 auto;
             position: relative;
-            overflow: visible;
+            overflow: hidden;
             z-index: 1;
+            min-height: 480px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* Wide deep glow behind entire hero */
+        header::before {
+            content: '';
+            position: absolute;
+            top: -60px; left: 50%;
+            transform: translateX(-50%);
+            width: 900px;
+            height: 500px;
+            background: radial-gradient(ellipse at 50% 40%,
+                rgba(255,228,77,0.10) 0%,
+                rgba(255,228,77,0.04) 35%,
+                transparent 70%);
+            pointer-events: none;
+            z-index: 0;
+            animation: haloBreath 5s ease-in-out infinite;
+        }
+
+        /* Horizontal scan line that sweeps once on load */
+        header::after {
+            content: '';
+            position: absolute;
+            top: 0; left: -100%;
+            width: 60%; height: 100%;
+            background: linear-gradient(90deg,
+                transparent 0%,
+                rgba(255,228,77,0.04) 40%,
+                rgba(255,228,77,0.09) 50%,
+                rgba(255,228,77,0.04) 60%,
+                transparent 100%);
+            animation: scanSweep 2.8s cubic-bezier(0.4,0,0.2,1) 0.3s forwards;
+            pointer-events: none;
+            z-index: 2;
+        }
+
+        @keyframes haloBreath {
+            0%, 100% { opacity: 1; transform: translateX(-50%) scale(1); }
+            50%       { opacity: 0.7; transform: translateX(-50%) scale(1.06); }
+        }
+
+        @keyframes scanSweep {
+            0%   { left: -60%; opacity: 0; }
+            10%  { opacity: 1; }
+            90%  { opacity: 1; }
+            100% { left: 140%; opacity: 0; }
         }
 
         .header-content {
             position: relative;
             z-index: 4;
-            max-width: 860px;
+            max-width: 920px;
             margin: 0 auto;
+            /* Frosted glass card frame */
+            background: rgba(255,255,255,0.025);
+            border: 1px solid rgba(255,228,77,0.14);
+            border-radius: 32px;
+            padding: 56px 64px 52px;
+            box-shadow:
+                0 0 0 1px rgba(255,255,255,0.04) inset,
+                0 32px 80px rgba(0,0,0,0.55),
+                0 0 60px rgba(255,228,77,0.06);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            animation: heroCardIn 0.9s cubic-bezier(0.16,1,0.3,1) both;
         }
 
-        /* Glow halo behind the title */
-        .header-content::before {
+        @keyframes heroCardIn {
+            from { opacity: 0; transform: translateY(28px) scale(0.97); }
+            to   { opacity: 1; transform: translateY(0) scale(1); }
+        }
+
+        /* Corner accent marks on the glass card */
+        .header-content::before,
+        .header-content::after {
             content: '';
             position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            width: 600px;
-            height: 200px;
-            background: radial-gradient(ellipse at center, rgba(255,228,77,0.07) 0%, transparent 70%);
+            width: 24px; height: 24px;
+            border-color: rgba(255,228,77,0.35);
+            border-style: solid;
             pointer-events: none;
-            z-index: -1;
+        }
+        .header-content::before {
+            top: 18px; left: 22px;
+            border-width: 2px 0 0 2px;
+            border-radius: 4px 0 0 0;
+        }
+        .header-content::after {
+            bottom: 18px; right: 22px;
+            border-width: 0 2px 2px 0;
+            border-radius: 0 0 4px 0;
         }
 
         /* Thin gold rule above title */
         .header-eyebrow {
             display: inline-flex;
             align-items: center;
-            gap: 10px;
+            gap: 12px;
             font-family: var(--font-body);
             font-size: 0.72rem;
             font-weight: 600;
-            letter-spacing: 2.5px;
+            letter-spacing: 3px;
             text-transform: uppercase;
             color: var(--accent-highlight);
-            opacity: 0.85;
-            margin-bottom: 18px;
+            opacity: 0.9;
+            margin-bottom: 22px;
+            animation: fadeSlideUp 0.7s 0.5s both;
         }
 
         .header-eyebrow::before,
         .header-eyebrow::after {
             content: '';
-            width: 32px;
+            width: 44px;
             height: 1px;
             background: linear-gradient(90deg, transparent, var(--accent-highlight));
-            opacity: 0.5;
+            opacity: 0.55;
         }
         .header-eyebrow::after { background: linear-gradient(90deg, var(--accent-highlight), transparent); }
 
+        @keyframes fadeSlideUp {
+            from { opacity: 0; transform: translateY(14px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+
         h1 {
             font-family: var(--font-display);
-            font-size: clamp(2.2rem, 4.5vw, 3.6rem);
-            font-weight: 700;
-            margin: 0 0 18px 0;
-            line-height: 1.15;
+            font-size: clamp(3.4rem, 7vw, 6rem);
+            font-weight: 800;
+            margin: 0 0 22px 0;
+            line-height: 1.12;
             color: var(--accent-primary);
-            letter-spacing: -0.5px;
+            letter-spacing: -1px;
+            animation: fadeSlideUp 0.7s 0.65s both;
         }
 
         /* Golden shimmer on the key word */
         h1 .title-accent {
-            background: linear-gradient(135deg, #fff7bf 0%, var(--accent-highlight) 45%, #ffd700 100%);
+            background: linear-gradient(135deg, #fff7bf 0%, var(--accent-highlight) 42%, #ffd700 70%, #fff3a0 100%);
+            background-size: 200% auto;
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
+            animation: shimmerSlide 4s linear 1.5s infinite;
+        }
+
+        @keyframes shimmerSlide {
+            0%   { background-position: 0% center; }
+            100% { background-position: 200% center; }
         }
 
         .subtitle {
             font-family: var(--font-body);
-            font-size: 1.1rem;
+            font-size: 1.05rem;
             color: var(--text-muted);
             margin-bottom: 0;
             font-weight: 300;
-            letter-spacing: 0.2px;
+            letter-spacing: 0.3px;
+            animation: fadeSlideUp 0.7s 0.8s both;
         }
 
-        /* ── Airplane fleet ── */
+        /* Divider between subtitle and scroll cue */
+        .hero-divider {
+            width: 60px;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, rgba(255,228,77,0.35), transparent);
+            margin: 28px auto 20px;
+            animation: fadeSlideUp 0.7s 0.95s both;
+        }
+
+        /* Animated scroll cue */
+        .scroll-cue {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.72rem;
+            font-weight: 500;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            color: rgba(255,228,77,0.45);
+            animation: fadeSlideUp 0.7s 1.1s both;
+        }
+        .scroll-cue .cue-dot {
+            width: 5px; height: 5px;
+            border-radius: 50%;
+            background: var(--accent-highlight);
+            opacity: 0.5;
+            animation: dotPulse 1.8s ease-in-out infinite;
+        }
+        .scroll-cue .cue-dot:nth-child(2) { animation-delay: 0.3s; }
+        .scroll-cue .cue-dot:nth-child(3) { animation-delay: 0.6s; }
+        @keyframes dotPulse {
+            0%, 100% { opacity: 0.2; transform: scale(0.8); }
+            50%       { opacity: 0.9; transform: scale(1.2); }
+        }
+
+        /* ── Airplane fleet — scattered all around ── */
         .aircraft-fleet {
             position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
+            inset: 0;
             pointer-events: none;
-            z-index: 3;
+            z-index: 5;
+            overflow: hidden;
         }
 
         .fleet-plane {
             position: absolute;
             color: var(--accent-highlight);
-            font-size: 1.4rem;
+            line-height: 1;
             text-shadow:
-                0 0 10px rgba(255, 228, 77, 0.6),
-                0 0 28px rgba(255, 228, 77, 0.25);
-            opacity: 0;
+                0 0 8px rgba(255,228,77,0.9),
+                0 0 22px rgba(255,228,77,0.55),
+                0 0 50px rgba(255,228,77,0.25);
             animation-fill-mode: both;
+            animation-timing-function: ease-in-out;
+            animation-iteration-count: infinite;
         }
 
-        /* Sizes for depth */
-        .fleet-plane.sz-sm { font-size: 1rem; opacity: 0.55; }
-        .fleet-plane.sz-md { font-size: 1.4rem; opacity: 0.8; }
-        .fleet-plane.sz-lg { font-size: 1.8rem; opacity: 0.95; }
+        /* ── SIZE tiers ── */
+        .fleet-plane.sz-xs  { font-size: 0.75rem; }
+        .fleet-plane.sz-sm  { font-size: 1.05rem; }
+        .fleet-plane.sz-md  { font-size: 1.55rem; }
+        .fleet-plane.sz-lg  { font-size: 2.1rem; }
 
-        /* Trail effect via pseudo */
-        .fleet-plane.trail::after {
-            content: '';
-            position: absolute;
-            right: 100%;
-            top: 50%;
-            transform: translateY(-50%);
-            width: 28px;
-            height: 1px;
-            background: linear-gradient(to left, rgba(255,228,77,0.35), transparent);
+        /* ── Generic float animation — each plane gets unique keyframe via inline style ── */
+        @keyframes floatA {
+            0%,100% { transform: translate(0,0)     rotate(-8deg)  scale(0.88); opacity: 0.45; }
+            30%     { transform: translate(4px,-8px) rotate(5deg)   scale(1.02); opacity: 0.9;
+                      text-shadow: 0 0 14px rgba(255,228,77,1), 0 0 36px rgba(255,228,77,0.7), 0 0 80px rgba(255,228,77,0.4); }
+            65%     { transform: translate(-5px,6px) rotate(-4deg)  scale(0.95); opacity: 0.65; }
         }
-
-        /* Two layers — background row (smaller, dimmer) */
-        .fp-bg1  { left: 5%;  animation: driftBg  8.2s ease-in-out infinite; animation-delay: 0s;   }
-        .fp-bg2  { left: 22%; animation: driftBg  9.5s ease-in-out infinite; animation-delay: 1.3s; }
-        .fp-bg3  { left: 41%; animation: driftBg  8.8s ease-in-out infinite; animation-delay: 2.6s; }
-        .fp-bg4  { left: 61%; animation: driftBg  9.1s ease-in-out infinite; animation-delay: 0.8s; }
-        .fp-bg5  { left: 80%; animation: driftBg  8.4s ease-in-out infinite; animation-delay: 1.9s; }
-
-        /* Foreground row (larger, brighter, orbit-style) */
-        .fp-fg1  { left: 11%; animation: orbitA   7.0s ease-in-out infinite; animation-delay: 0.4s; }
-        .fp-fg2  { left: 32%; animation: orbitB   7.8s ease-in-out infinite; animation-delay: 1.8s; }
-        .fp-fg3  { left: 50%; animation: orbitC   6.8s ease-in-out infinite; animation-delay: 0.9s; }
-        .fp-fg4  { left: 69%; animation: orbitA   7.4s ease-in-out infinite; animation-delay: 2.4s; }
-        .fp-fg5  { left: 88%; animation: orbitB   7.1s ease-in-out infinite; animation-delay: 1.1s; }
-
-        @keyframes driftBg {
-            0%   { top: 60px;  opacity: 0.22; transform: rotate(-8deg)  scale(0.9); }
-            30%  { opacity: 0.35; }
-            50%  { top: 30px;  opacity: 0.3;  transform: rotate(2deg)   scale(0.92); }
-            70%  { opacity: 0.35; }
-            100% { top: 60px;  opacity: 0.22; transform: rotate(-8deg)  scale(0.9); }
+        @keyframes floatB {
+            0%,100% { transform: translate(0,0)      rotate(10deg)  scale(0.9);  opacity: 0.4; }
+            40%     { transform: translate(-6px,-9px) rotate(-3deg)  scale(1.06); opacity: 1.0;
+                      text-shadow: 0 0 14px rgba(255,228,77,1), 0 0 36px rgba(255,228,77,0.7), 0 0 80px rgba(255,228,77,0.4); }
+            70%     { transform: translate(7px,5px)   rotate(6deg)   scale(0.92); opacity: 0.6; }
         }
-
-        @keyframes orbitA {
-            0%   { top: 100px; opacity: 0.0;  transform: rotate(-15deg) scale(0.85); }
-            10%  { opacity: 0.85; }
-            50%  { top: 28px;  opacity: 1.0;  transform: rotate(0deg)   scale(1.05); }
-            90%  { opacity: 0.85; }
-            100% { top: 100px; opacity: 0.0;  transform: rotate(-15deg) scale(0.85); }
+        @keyframes floatC {
+            0%,100% { transform: translate(0,0)     rotate(-12deg) scale(0.85); opacity: 0.5; }
+            50%     { transform: translate(8px,-5px) rotate(7deg)   scale(1.08); opacity: 0.95;
+                      text-shadow: 0 0 14px rgba(255,228,77,1), 0 0 36px rgba(255,228,77,0.7), 0 0 80px rgba(255,228,77,0.4); }
+            80%     { transform: translate(-4px,8px) rotate(-5deg)  scale(0.9);  opacity: 0.55; }
         }
-
-        @keyframes orbitB {
-            0%   { top: 20px;  opacity: 0.0;  transform: rotate(12deg)  scale(0.9); }
-            10%  { opacity: 0.75; }
-            50%  { top: 75px;  opacity: 0.95; transform: rotate(-4deg)  scale(1.05); }
-            90%  { opacity: 0.75; }
-            100% { top: 20px;  opacity: 0.0;  transform: rotate(12deg)  scale(0.9); }
+        @keyframes floatD {
+            0%,100% { transform: translate(0,0)      rotate(6deg)   scale(0.92); opacity: 0.42; }
+            35%     { transform: translate(-7px,-10px) rotate(-8deg) scale(1.04); opacity: 0.88;
+                      text-shadow: 0 0 14px rgba(255,228,77,1), 0 0 36px rgba(255,228,77,0.7), 0 0 80px rgba(255,228,77,0.4); }
+            60%     { transform: translate(5px,7px)   rotate(3deg)   scale(0.96); opacity: 0.62; }
         }
-
-        @keyframes orbitC {
-            0%   { top: 50px;  opacity: 0.0;  transform: rotate(-5deg)  scale(0.88); }
-            10%  { opacity: 0.9; }
-            50%  { top: 18px;  opacity: 1.0;  transform: rotate(8deg)   scale(1.08); }
-            90%  { opacity: 0.9; }
-            100% { top: 50px;  opacity: 0.0;  transform: rotate(-5deg)  scale(0.88); }
+        @keyframes floatE {
+            0%,100% { transform: translate(0,0)      rotate(-5deg)  scale(0.87); opacity: 0.48; }
+            45%     { transform: translate(6px,-12px) rotate(9deg)   scale(1.1);  opacity: 1.0;
+                      text-shadow: 0 0 14px rgba(255,228,77,1), 0 0 36px rgba(255,228,77,0.7), 0 0 80px rgba(255,228,77,0.4); }
+            75%     { transform: translate(-8px,4px)  rotate(-6deg)  scale(0.93); opacity: 0.58; }
         }
 
         /* ── Main content ── */
@@ -593,8 +699,238 @@
             transform: translateY(0);
         }
 
-        /* ── Responsive ── */
-        @media (max-width: 768px) {
+        /* ── Stats Bar ── */
+        .stats-bar {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+            gap: 2px;
+            background: var(--glass-border);
+            border: 1px solid var(--glass-border);
+            border-radius: 20px;
+            overflow: hidden;
+            margin-top: 36px;
+        }
+        .stat-item {
+            background: var(--glass-bg);
+            padding: 24px 20px;
+            text-align: center;
+            transition: background 0.3s;
+        }
+        .stat-item:hover { background: var(--glass-bg-hover); }
+        .stat-item .stat-val {
+            display: block;
+            font-family: var(--font-display);
+            font-size: 2rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, #fff7bf 0%, var(--accent-highlight) 50%, #ffd700 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            line-height: 1.1;
+        }
+        .stat-item .stat-label {
+            display: block;
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-top: 6px;
+            font-weight: 500;
+        }
+
+        /* ── Pipeline Steps ── */
+        .pipeline {
+            display: flex;
+            flex-direction: column;
+            gap: 0;
+            margin-top: 28px;
+        }
+        .pipeline-step {
+            display: flex;
+            align-items: flex-start;
+            gap: 20px;
+            padding: 24px 0;
+            border-bottom: 1px solid var(--glass-border);
+            position: relative;
+        }
+        .pipeline-step:last-child { border-bottom: none; }
+        .step-num {
+            flex-shrink: 0;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: var(--accent-highlight-dim);
+            border: 1px solid var(--glass-border-gold);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: var(--font-display);
+            font-weight: 800;
+            font-size: 0.9rem;
+            color: var(--accent-highlight);
+        }
+        .step-body h4 {
+            margin: 0 0 6px 0;
+            color: var(--accent-primary);
+            font-family: var(--font-display);
+            font-size: 1.05rem;
+            font-weight: 600;
+        }
+        .step-body p { margin: 0; font-size: 0.9rem; }
+
+        /* ── Feature Table ── */
+        .feat-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 28px;
+            font-size: 0.9rem;
+        }
+        .feat-table th {
+            text-align: left;
+            font-family: var(--font-display);
+            font-weight: 600;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--accent-highlight);
+            padding: 10px 16px;
+            border-bottom: 1px solid var(--glass-border-gold);
+        }
+        .feat-table td {
+            padding: 12px 16px;
+            border-bottom: 1px solid var(--glass-border);
+            color: var(--text-muted);
+            vertical-align: top;
+        }
+        .feat-table tr:last-child td { border-bottom: none; }
+        .feat-table tr:hover td { background: var(--glass-bg-light); }
+        .feat-table td:first-child {
+            color: var(--accent-primary);
+            font-weight: 500;
+            white-space: nowrap;
+        }
+        .feat-table .badge {
+            display: inline-block;
+            padding: 2px 10px;
+            border-radius: 20px;
+            font-size: 0.72rem;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+        }
+        .badge-green { background: rgba(74,222,128,0.15); color: #4ade80; border: 1px solid rgba(74,222,128,0.25); }
+        .badge-yellow { background: var(--accent-highlight-dim); color: var(--accent-highlight); border: 1px solid var(--glass-border-gold); }
+        .badge-blue { background: rgba(96,165,250,0.12); color: #60a5fa; border: 1px solid rgba(96,165,250,0.22); }
+        .badge-red { background: rgba(248,113,113,0.12); color: #f87171; border: 1px solid rgba(248,113,113,0.22); }
+
+        /* ── Two-col layout ── */
+        .two-col {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-top: 28px;
+        }
+        @media (max-width: 768px) { .two-col { grid-template-columns: 1fr; } }
+
+        /* ── Inline code ── */
+        code {
+            font-family: 'IBM Plex Mono', 'Courier New', monospace;
+            background: rgba(255,228,77,0.08);
+            border: 1px solid rgba(255,228,77,0.15);
+            padding: 1px 7px;
+            border-radius: 5px;
+            font-size: 0.85em;
+            color: #ffe44d;
+        }
+
+        /* ── Layer diagram ── */
+        .layer-stack {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            margin-top: 28px;
+        }
+        .layer {
+            border-radius: 12px;
+            padding: 14px 24px;
+            border: 1px solid var(--glass-border);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            transition: border-color 0.3s, transform 0.3s;
+        }
+        .layer:hover { border-color: var(--glass-border-gold); transform: translateX(6px); }
+        .layer-name { font-family: var(--font-display); font-weight: 600; color: var(--accent-primary); font-size: 0.95rem; }
+        .layer-desc { color: var(--text-muted); font-size: 0.82rem; text-align: right; }
+        .layer.l1 { background: rgba(255,228,77,0.055); }
+        .layer.l2 { background: rgba(255,255,255,0.038); }
+        .layer.l3 { background: rgba(255,228,77,0.03); }
+        .layer.l4 { background: rgba(255,255,255,0.022); }
+        .layer.l5 { background: rgba(255,228,77,0.015); }
+
+        /* ── Limitation cards ── */
+        .limit-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+            gap: 16px;
+            margin-top: 28px;
+        }
+        .limit-card {
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            border-radius: 16px;
+            padding: 24px;
+            transition: border-color 0.3s, transform 0.3s;
+        }
+        .limit-card:hover { border-color: rgba(248,113,113,0.3); transform: translateY(-4px); }
+        .limit-card .limit-icon {
+            font-size: 1.5rem;
+            margin-bottom: 12px;
+            display: block;
+        }
+        .limit-card h4 {
+            margin: 0 0 8px 0;
+            color: var(--accent-primary);
+            font-family: var(--font-display);
+            font-size: 1rem;
+            font-weight: 600;
+        }
+        .limit-card p { margin: 0; font-size: 0.875rem; }
+
+        /* ── Tech stack pills ── */
+        .tech-stack {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 20px;
+        }
+        .tech-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+            background: var(--glass-bg-light);
+            border: 1px solid var(--glass-border);
+            padding: 7px 16px;
+            border-radius: 50px;
+            font-size: 0.8rem;
+            font-weight: 500;
+            color: var(--text-muted);
+            transition: all 0.25s;
+        }
+        .tech-pill:hover { border-color: var(--glass-border-strong); color: var(--accent-primary); transform: translateY(-2px); }
+        .tech-pill .dot {
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+            flex-shrink: 0;
+        }
+        .dot-yellow { background: var(--accent-highlight); }
+        .dot-blue { background: #60a5fa; }
+        .dot-green { background: #4ade80; }
+        .dot-purple { background: #c084fc; }
+        .dot-red { background: #f87171; }
+    
             h1 { font-size: 2rem; }
             section { padding: 32px 24px; }
             .nav-container { gap: 2px; }
@@ -609,32 +945,71 @@
         <div class="nav-container">
             <a href="#abstract">Abstract</a>
             <a href="#architecture">Architecture</a>
-            <a href="#implementation">Implementation</a>
+            <a href="#gnn">GNN</a>
+            <a href="#aiops">AIOps</a>
+            <a href="#implementation">Setup</a>
             <a href="#results">Results</a>
+            <a href="#limitations">Limitations</a>
             <a href="#team">Team</a>
         </div>
     </nav>
 
     <header>
-        <!-- Background plane layer -->
+        <!-- Airplanes scattered all around the title card -->
         <div class="aircraft-fleet" aria-hidden="true">
-            <span class="fleet-plane sz-sm fp-bg1">✈</span>
-            <span class="fleet-plane sz-sm fp-bg2">✈</span>
-            <span class="fleet-plane sz-sm fp-bg3">✈</span>
-            <span class="fleet-plane sz-sm fp-bg4">✈</span>
-            <span class="fleet-plane sz-sm fp-bg5">✈</span>
-            <!-- Foreground plane layer -->
-            <span class="fleet-plane sz-lg trail fp-fg1">✈</span>
-            <span class="fleet-plane sz-md trail fp-fg2">✈</span>
-            <span class="fleet-plane sz-lg trail fp-fg3">✈</span>
-            <span class="fleet-plane sz-md trail fp-fg4">✈</span>
-            <span class="fleet-plane sz-lg trail fp-fg5">✈</span>
+            <!-- TOP ZONE -->
+            <span class="fleet-plane sz-sm"  style="left:4%;  top:3%;  animation:floatA 5.8s 0.0s  ease-in-out infinite;">✈</span>
+            <span class="fleet-plane sz-xs"  style="left:13%; top:6%;  animation:floatC 6.4s 1.3s  ease-in-out infinite;">✈</span>
+            <span class="fleet-plane sz-md"  style="left:24%; top:2%;  animation:floatB 7.1s 0.6s  ease-in-out infinite;">✈</span>
+            <span class="fleet-plane sz-xs"  style="left:36%; top:7%;  animation:floatE 5.5s 2.1s  ease-in-out infinite;">✈</span>
+            <span class="fleet-plane sz-lg"  style="left:47%; top:1%;  animation:floatD 6.8s 0.3s  ease-in-out infinite;">✈</span>
+            <span class="fleet-plane sz-sm"  style="left:59%; top:5%;  animation:floatA 6.2s 1.7s  ease-in-out infinite;">✈</span>
+            <span class="fleet-plane sz-xs"  style="left:71%; top:3%;  animation:floatC 5.9s 0.9s  ease-in-out infinite;">✈</span>
+            <span class="fleet-plane sz-md"  style="left:82%; top:6%;  animation:floatB 6.6s 2.4s  ease-in-out infinite;">✈</span>
+            <span class="fleet-plane sz-sm"  style="left:92%; top:2%;  animation:floatE 7.0s 1.1s  ease-in-out infinite;">✈</span>
+
+            <!-- BOTTOM ZONE -->
+            <span class="fleet-plane sz-md"  style="left:2%;  bottom:4%; animation:floatB 6.3s 0.5s  ease-in-out infinite;">✈</span>
+            <span class="fleet-plane sz-xs"  style="left:11%; bottom:7%; animation:floatD 5.6s 1.9s  ease-in-out infinite;">✈</span>
+            <span class="fleet-plane sz-sm"  style="left:22%; bottom:2%; animation:floatA 7.2s 0.2s  ease-in-out infinite;">✈</span>
+            <span class="fleet-plane sz-lg"  style="left:34%; bottom:5%; animation:floatC 6.0s 2.7s  ease-in-out infinite;">✈</span>
+            <span class="fleet-plane sz-xs"  style="left:45%; bottom:3%; animation:floatE 6.7s 0.8s  ease-in-out infinite;">✈</span>
+            <span class="fleet-plane sz-sm"  style="left:56%; bottom:6%; animation:floatB 5.8s 1.5s  ease-in-out infinite;">✈</span>
+            <span class="fleet-plane sz-md"  style="left:67%; bottom:2%; animation:floatA 6.5s 2.2s  ease-in-out infinite;">✈</span>
+            <span class="fleet-plane sz-xs"  style="left:79%; bottom:7%; animation:floatD 7.3s 0.4s  ease-in-out infinite;">✈</span>
+            <span class="fleet-plane sz-sm"  style="left:90%; bottom:3%; animation:floatC 6.1s 1.0s  ease-in-out infinite;">✈</span>
+
+            <!-- LEFT ZONE -->
+            <span class="fleet-plane sz-xs"  style="left:1%;  top:22%;  animation:floatD 6.0s 2.0s  ease-in-out infinite;">✈</span>
+            <span class="fleet-plane sz-sm"  style="left:3%;  top:38%;  animation:floatA 5.7s 0.7s  ease-in-out infinite;">✈</span>
+            <span class="fleet-plane sz-md"  style="left:1%;  top:55%;  animation:floatE 6.9s 1.8s  ease-in-out infinite;">✈</span>
+            <span class="fleet-plane sz-xs"  style="left:4%;  top:72%;  animation:floatC 5.4s 2.5s  ease-in-out infinite;">✈</span>
+
+            <!-- RIGHT ZONE -->
+            <span class="fleet-plane sz-sm"  style="right:2%;  top:20%;  animation:floatB 6.4s 1.4s  ease-in-out infinite;">✈</span>
+            <span class="fleet-plane sz-xs"  style="right:1%;  top:36%;  animation:floatD 5.9s 0.2s  ease-in-out infinite;">✈</span>
+            <span class="fleet-plane sz-lg"  style="right:3%;  top:53%;  animation:floatA 7.0s 2.8s  ease-in-out infinite;">✈</span>
+            <span class="fleet-plane sz-xs"  style="right:2%;  top:70%;  animation:floatC 6.2s 1.2s  ease-in-out infinite;">✈</span>
+
+            <!-- DIAGONAL / CORNER ACCENTS -->
+            <span class="fleet-plane sz-xs"  style="left:8%;  top:16%;  animation:floatE 5.5s 3.0s  ease-in-out infinite; opacity:0.35;">✈</span>
+            <span class="fleet-plane sz-xs"  style="right:9%; top:14%;  animation:floatB 6.8s 0.5s  ease-in-out infinite; opacity:0.35;">✈</span>
+            <span class="fleet-plane sz-xs"  style="left:7%;  bottom:16%; animation:floatA 6.1s 2.3s ease-in-out infinite; opacity:0.35;">✈</span>
+            <span class="fleet-plane sz-xs"  style="right:8%; bottom:15%; animation:floatD 5.7s 1.6s ease-in-out infinite; opacity:0.35;">✈</span>
         </div>
 
         <div class="header-content">
             <div class="header-eyebrow">Research Project · Computer Engineering</div>
             <h1>Generative <span class="title-accent">Digital Twin</span> Framework<br>for Airport Surveillance</h1>
             <p class="subtitle">Integrating Graph Neural Networks and LLM-Driven AIOps</p>
+            <div class="hero-divider"></div>
+            <div class="scroll-cue">
+                <span class="cue-dot"></span><span class="cue-dot"></span><span class="cue-dot"></span>
+                Scroll to explore
+            </div>
+            <!-- Extra corner marks (top-right, bottom-left) -->
+            <span style="position:absolute;top:18px;right:22px;width:24px;height:24px;border-top:2px solid rgba(255,228,77,0.35);border-right:2px solid rgba(255,228,77,0.35);border-radius:0 4px 0 0;pointer-events:none;"></span>
+            <span style="position:absolute;bottom:18px;left:22px;width:24px;height:24px;border-bottom:2px solid rgba(255,228,77,0.35);border-left:2px solid rgba(255,228,77,0.35);border-radius:0 0 0 4px;pointer-events:none;"></span>
         </div>
     </header>
 
@@ -643,6 +1018,49 @@
             <h2>The Challenge: Securing Critical Infrastructure</h2>
             <p>Modern airport surveillance networks are highly critical infrastructures that face massive bandwidth constraints as they scale to support hundreds of high-definition cameras and IoT sensors. Traditional manual troubleshooting by network administrators is fundamentally reactive, relying on static CLI interventions that are often too slow, risking critical video feed loss during congestion events.</p>
             <p><strong>Our Solution:</strong> We built a distributed, generative <span class="hl-yellow">Digital Twin</span>—a high-fidelity virtual replica of the airport's network. By combining Graph Neural Networks (GNNs) for rapid performance prediction with a Large Language Model (LLM) utilizing Retrieval-Augmented Generation (RAG), administrators can now manage complex camera networks using simple, natural language commands. Before any AI-generated JSON configuration is deployed, the GNN acts as a strict mathematical guardrail to pre-verify that the changes are physically safe.</p>
+
+            <div class="stats-bar">
+                <div class="stat-item"><span class="stat-val">100%</span><span class="stat-label">Congestion Recall</span></div>
+                <div class="stat-item"><span class="stat-val">4.2s</span><span class="stat-label">Avg. Response Latency</span></div>
+                <div class="stat-item"><span class="stat-val">1,000</span><span class="stat-label">Simulated Scenarios</span></div>
+                <div class="stat-item"><span class="stat-val">28.1ms</span><span class="stat-label">GNN Inference Time</span></div>
+                <div class="stat-item"><span class="stat-val">7,004</span><span class="stat-label">RAG Documents</span></div>
+                <div class="stat-item"><span class="stat-val">2.4×</span><span class="stat-label">Avg. Optimization Iters</span></div>
+            </div>
+
+            <h3 style="font-family:var(--font-display);color:var(--accent-primary);margin:40px 0 8px 0;font-size:1.15rem;font-weight:600;">Core Contributions</h3>
+            <div class="two-col">
+                <div class="method-card">
+                    <h4>🛰 High-Fidelity Data Plane</h4>
+                    <p>A fully automated <strong>ns-3</strong> C++ simulation environment mirrors a real airport's hierarchical edge-to-cloud topology, generating 1,000 labeled fault scenarios covering peak traffic, rain fade, and node failures.</p>
+                </div>
+                <div class="method-card">
+                    <h4>🧠 ZoneAwareGNN</h4>
+                    <p>A custom <strong>GATv2</strong> graph attention network formulates the live network as a directed graph to predict latency, jitter, throughput, and packet loss in under 30 ms—replacing hours of simulation at runtime.</p>
+                </div>
+                <div class="method-card">
+                    <h4>🗣 RAG-Augmented Intent Engine</h4>
+                    <p>Natural language administrator intents are grounded in <strong>7,004 embedded simulation states</strong> via ChromaDB, enabling the Gemini 2.5 Flash-Lite LLM to generate valid, topology-aware JSON configurations without hallucination.</p>
+                </div>
+                <div class="method-card">
+                    <h4>🔒 Closed-Loop Safety Guardrail</h4>
+                    <p>Before any config is deployed, the GNN performs a <strong>forward pass on the hypothetical topology</strong>. Configurations that violate SLA thresholds are immediately flagged, and the LLM iteratively refines its proposal until the predicted QoS is safe.</p>
+                </div>
+            </div>
+
+            <h3 style="font-family:var(--font-display);color:var(--accent-primary);margin:40px 0 12px 0;font-size:1.15rem;font-weight:600;">Technology Stack</h3>
+            <div class="tech-stack">
+                <span class="tech-pill"><span class="dot dot-yellow"></span>ns-3.41 (C++)</span>
+                <span class="tech-pill"><span class="dot dot-blue"></span>PyTorch Geometric</span>
+                <span class="tech-pill"><span class="dot dot-blue"></span>GATv2 Convolution</span>
+                <span class="tech-pill"><span class="dot dot-green"></span>Gemini 2.5 Flash-Lite</span>
+                <span class="tech-pill"><span class="dot dot-green"></span>ChromaDB (RAG)</span>
+                <span class="tech-pill"><span class="dot dot-purple"></span>FastAPI Microservices</span>
+                <span class="tech-pill"><span class="dot dot-purple"></span>NVIDIA T4 GPU</span>
+                <span class="tech-pill"><span class="dot dot-red"></span>all-MiniLM-L6-v2</span>
+                <span class="tech-pill"><span class="dot dot-yellow"></span>CoDel AQM</span>
+                <span class="tech-pill"><span class="dot dot-blue"></span>Python Orchestrator</span>
+            </div>
         </section>
 
         <section id="architecture" class="glass-panel">
@@ -668,9 +1086,170 @@
                 <img src="images/architecture.png" alt="High-level system architecture of the Generative Digital Twin">
                 <figcaption><strong>Figure 1:</strong> High-level system architecture detailing the closed-loop optimization workflow. The AIOps Orchestrator iteratively leverages the LLM for configuration generation and the ZoneAwareGNN for physical verification prior to deployment.</figcaption>
             </figure>
+
+            <h3 style="font-family:var(--font-display);color:var(--accent-primary);margin:36px 0 12px 0;font-size:1.15rem;font-weight:600;">Network Topology Overview</h3>
+            <p>The simulated airport network follows a strict three-tier hierarchy, forcing congestion at precisely the right chokepoints to generate a diverse, realistic training corpus:</p>
+            <div class="layer-stack">
+                <div class="layer l1">
+                    <span class="layer-name">☁ Cloud / NOC Server (1 node)</span>
+                    <span class="layer-desc">Destination sink · <code>cloud-server-01</code></span>
+                </div>
+                <div class="layer l2">
+                    <span class="layer-name">⚡ WAN Bottleneck</span>
+                    <span class="layer-desc"><span class="hl-yellow">1 Gbps · 20 ms delay</span> · CoDel AQM</span>
+                </div>
+                <div class="layer l3">
+                    <span class="layer-name">🔀 Aggregation Core (1 node)</span>
+                    <span class="layer-desc">Central multiplexer · <code>gw-core-01</code></span>
+                </div>
+                <div class="layer l4">
+                    <span class="layer-name">🔗 Intra-Airport Links (50 × edges)</span>
+                    <span class="layer-desc">10 Gbps · 1 ms delay · local fiber</span>
+                </div>
+                <div class="layer l5">
+                    <span class="layer-name">📷 Edge Endpoints (50 nodes)</span>
+                    <span class="layer-desc">HD cameras &amp; IoT sensors across 5 operational zones</span>
+                </div>
+            </div>
+
+            <h3 style="font-family:var(--font-display);color:var(--accent-primary);margin:40px 0 12px 0;font-size:1.15rem;font-weight:600;">Scenario Generation &amp; Fault Injection</h3>
+            <p>To ensure the GNN generalizes across a vast state-space, a Python orchestrator programmatically injected three categories of stress conditions before each of the 1,000 ns-3 runs:</p>
+            <table class="feat-table">
+                <thead><tr><th>Context Type</th><th>Parameters</th><th>Purpose</th></tr></thead>
+                <tbody>
+                    <tr>
+                        <td>Temporal (Peak/Off-Peak)</td>
+                        <td>10–30 background flows (off-peak) · up to 100 flows (peak)</td>
+                        <td>Simulate crowded terminals &amp; emergency loads that saturate the 1 Gbps WAN link</td>
+                    </tr>
+                    <tr>
+                        <td>Weather / Rain Fade</td>
+                        <td>Clear · Rain · Storm contexts via <code>RateErrorModel</code></td>
+                        <td>Increase bit-error rates on perimeter wireless cameras, forcing packet loss before gateway aggregation</td>
+                    </tr>
+                    <tr>
+                        <td>Hardware Failures</td>
+                        <td>Random node shutdowns via <code>ipv4-&gt;SetDown()</code></td>
+                        <td>Force mid-simulation routing reconvergence and generate highly dynamic transient states</td>
+                    </tr>
+                </tbody>
+            </table>
         </section>
 
-        <section id="implementation" class="glass-panel">
+        <section id="gnn" class="glass-panel">
+            <h2>ZoneAwareGNN: Predictive Network Intelligence</h2>
+            <p>To capture the non-Euclidean spatial dependencies of the airport network, we designed a custom <strong>Graph Attention Network v2 (GATv2)</strong> architecture. Unlike time-series models (ARIMA, RNN), GNNs leverage message-passing to aggregate congestion signals across the entire topology simultaneously.</p>
+
+            <h3 style="font-family:var(--font-display);color:var(--accent-primary);margin:32px 0 12px 0;font-size:1.15rem;font-weight:600;">Graph Formulation</h3>
+            <p>The live network state is encoded as a directed graph <strong>G = (V, E)</strong>. Before entering the GATv2 core, each input type is projected into a shared 128-dimensional latent space via independent MLP encoders:</p>
+            <table class="feat-table">
+                <thead><tr><th>Input Type</th><th>Raw Dimension</th><th>Encoded Dimension</th><th>Contents</th></tr></thead>
+                <tbody>
+                    <tr><td>Node Features x<sub>v</sub></td><td>R³²</td><td>128-d</td><td>Queue occupancy, processing load — 2-layer MLP + ReLU</td></tr>
+                    <tr><td>Edge Features e<sub>uv</sub></td><td>R¹⁶</td><td>128-d</td><td>Physical link capacity, dynamic bandwidth utilisation — 1-layer MLP</td></tr>
+                    <tr><td>Flow Features f<sub>i</sub></td><td>R²⁴</td><td>128-d</td><td>Video stream bitrate, sensor burst demand — 1-layer MLP</td></tr>
+                </tbody>
+            </table>
+
+            <h3 style="font-family:var(--font-display);color:var(--accent-primary);margin:36px 0 12px 0;font-size:1.15rem;font-weight:600;">Two-Layer GATv2 Message-Passing Core</h3>
+            <p>GATv2 improves upon standard GAT by computing <strong>dynamic, strictly non-linear attention coefficients</strong>, allowing the model to focus on congested bottleneck links rather than treating all neighbours equally.</p>
+            <div class="two-col">
+                <div class="method-card">
+                    <h4>Layer 1 — Multi-Head Attention</h4>
+                    <p><strong>K = 4 independent heads</strong>, outputs concatenated. Each head learns a distinct "view" of the neighbourhood, stabilising training against local optima and capturing diverse congestion patterns simultaneously.</p>
+                </div>
+                <div class="method-card">
+                    <h4>Layer 2 — Spatial Smoother</h4>
+                    <p>A <strong>single attention head</strong> aggregates the concatenated embeddings into the final node representation <code>h<sup>out</sup><sub>v</sub> → R¹²⁸</code>. Acts as a low-pass filter, smoothing neighbourhood noise to expose macro-topological structure.</p>
+                </div>
+            </div>
+
+            <h3 style="font-family:var(--font-display);color:var(--accent-primary);margin:36px 0 12px 0;font-size:1.15rem;font-weight:600;">Contextual Readout &amp; Four-Head Regression</h3>
+            <p>Network KPIs are end-to-end flow metrics, not isolated node properties. For each traffic flow <em>i</em> from source <em>s</em> to destination <em>d</em>, a context vector <strong>C<sub>i</sub> ∈ R³⁸⁴</strong> is assembled by concatenating the encoded flow features with the learned embeddings of both endpoints. Four independent MLP heads then predict simultaneously:</p>
+            <table class="feat-table">
+                <thead><tr><th>Prediction Head</th><th>Output</th><th>Special Treatment</th><th>Status</th></tr></thead>
+                <tbody>
+                    <tr><td>Latency</td><td>End-to-end delay (ms)</td><td><code>log(1+x)</code> transform on targets to reduce outlier impact</td><td><span class="badge badge-green">~80% accuracy</span></td></tr>
+                    <tr><td>Throughput</td><td>Effective bandwidth (Mbps)</td><td>MSE loss with reduced weight <code>ε = 0.1</code></td><td><span class="badge badge-green">~74% accuracy</span></td></tr>
+                    <tr><td>Jitter</td><td>Delay variation (ms)</td><td>Targets scaled ×100 to match gradient magnitude</td><td><span class="badge badge-yellow">0.056 ms Abs. Error</span></td></tr>
+                    <tr><td>Packet Loss</td><td>Drop rate [0, 1]</td><td><strong>Sigmoid</strong> output + amplified weight <code>ε = 5.0</code></td><td><span class="badge badge-blue">100% recall &gt;15%</span></td></tr>
+                </tbody>
+            </table>
+
+            <div class="highlight-box" style="margin-top:32px;">
+                <h4>Training Configuration</h4>
+                <p style="margin-bottom:0;">Implemented in <strong>PyTorch Geometric</strong> on an <strong>NVIDIA T4 GPU</strong>. Dataset: 1,000 ns-3 scenarios split 80/20 train/test. Optimiser: Adam (lr = 0.001). Epochs: 80. Batch size: 32. The test loss converges <em>below</em> training loss — a hallmark of Dropout regularisation active only during training, confirming no overfitting on the synthetic dataset.</p>
+            </div>
+        </section>
+
+        <section id="aiops" class="glass-panel">
+            <h2>Intent-Driven AIOps: Closed-Loop Pipeline</h2>
+            <p>The AIOps orchestrator bridges natural language administrator intents and low-level network configuration parameters through a multi-agent pipeline. The core vulnerability in modern AIOps—deploying AI-generated configs without validation—is addressed by making the GNN a mandatory pre-deployment safety gate.</p>
+
+            <h3 style="font-family:var(--font-display);color:var(--accent-primary);margin:32px 0 12px 0;font-size:1.15rem;font-weight:600;">RAG Knowledge Base Construction</h3>
+            <p>The <strong>7,004 ChromaDB documents</strong> were generated offline from the 1,000 ns-3 scenario JSON files. Each document encodes per-zone performance metrics, global scenario summaries, and emergent routing patterns. At query time, the administrator's intent is embedded with <code>all-MiniLM-L6-v2</code> and the top-10 most relevant historical states are retrieved via cosine similarity search in <span class="hl-yellow">42.5 ms</span>.</p>
+
+            <h3 style="font-family:var(--font-display);color:var(--accent-primary);margin:36px 0 12px 0;font-size:1.15rem;font-weight:600;">Supported Intent Classes</h3>
+            <div class="grid-cards">
+                <div class="method-card">
+                    <h4>🚨 Safety Critical</h4>
+                    <p><em>"Immediately isolate compromised camera feeds in the Critical Security Zone."</em> — Triggers priority rerouting and zone quarantine configurations.</p>
+                </div>
+                <div class="method-card">
+                    <h4>📶 Network QoS</h4>
+                    <p><em>"Prioritize 4K video streams over background sensor data during peak hours."</em> — Adjusts <code>TrafficControlHelper</code> queue weights and flow priorities.</p>
+                </div>
+                <div class="method-card">
+                    <h4>🔁 Fault Tolerance</h4>
+                    <p><em>"Reroute core traffic away from Gateway A due to detected link degradation."</em> — Forces routing reconvergence by manipulating interface states programmatically.</p>
+                </div>
+            </div>
+
+            <h3 style="font-family:var(--font-display);color:var(--accent-primary);margin:40px 0 16px 0;font-size:1.15rem;font-weight:600;">Iterative Optimization Loop</h3>
+            <p>The LLM operates in a dual capacity—as both <em>Configuration Generator</em> and <em>Cognitive Evaluator</em>—guided by the GNN's predicted QoS penalties:</p>
+            <div class="pipeline">
+                <div class="pipeline-step">
+                    <div class="step-num">1</div>
+                    <div class="step-body">
+                        <h4>Initial Generation</h4>
+                        <p>The LLM processes the administrator's natural language intent alongside the top-10 retrieved RAG documents and the real-time graph state G(t), synthesising a baseline <strong>JSON network configuration</strong> with specific node IDs, zone tags, and bandwidth parameters.</p>
+                    </div>
+                </div>
+                <div class="pipeline-step">
+                    <div class="step-num">2</div>
+                    <div class="step-body">
+                        <h4>GNN Pre-Deployment Verification</h4>
+                        <p>The proposed config is treated as a hypothetical graph mutation. The ZoneAwareGNN performs a <strong>forward pass in ~28 ms</strong> to predict future KPIs. These are aggregated into a composite QoS score. Any SLA violations immediately flag the configuration as unsafe.</p>
+                    </div>
+                </div>
+                <div class="pipeline-step">
+                    <div class="step-num">3</div>
+                    <div class="step-body">
+                        <h4>Cognitive Evaluation</h4>
+                        <p>In subsequent iterations (i ≥ 2), the LLM receives the <strong>full trajectory</strong> of all prior configurations and their predicted QoS scores, plus rigid capacity constraints (e.g. the 80 Mbps cloud uplink ceiling). It analyses the delta between iterations to guide refinement.</p>
+                    </div>
+                </div>
+                <div class="pipeline-step">
+                    <div class="step-num">4</div>
+                    <div class="step-body">
+                        <h4>Termination &amp; Deployment</h4>
+                        <p>The LLM outputs a structured JSON with a <code>should_continue</code> boolean, a <code>reasoning</code> string, and the <code>next_config</code> payload. When further routing shifts yield no statistically significant QoS improvement, the loop terminates—on average in <span class="hl-yellow">2.4 iterations</span>—and the best-scoring configuration is deployed to ns-3.</p>
+                    </div>
+                </div>
+            </div>
+
+            <h3 style="font-family:var(--font-display);color:var(--accent-primary);margin:40px 0 12px 0;font-size:1.15rem;font-weight:600;">Distributed Microservices Architecture</h3>
+            <table class="feat-table">
+                <thead><tr><th>Service</th><th>File</th><th>Responsibility</th><th>Avg. Latency</th></tr></thead>
+                <tbody>
+                    <tr><td>Simulation Engine</td><td><code>app.py</code></td><td>Hosts ns-3 on Ubuntu 22.04 LTS; executes compiled C++ binaries via subprocesses with <code>threading.Lock()</code> for race-condition prevention</td><td><span class="badge badge-red">~65 s / scenario</span></td></tr>
+                    <tr><td>GNN Inference Engine</td><td><code>gnn_server.py</code></td><td>Serves pre-trained PyTorch model on T4 GPU; dynamically constructs PyG graphs, denormalises outputs before returning raw QoS predictions</td><td><span class="badge badge-green">28.1 ms</span></td></tr>
+                    <tr><td>AIOps Orchestrator</td><td><code>rag_server.py</code></td><td>Manages ChromaDB vector store, stateful iterative loop, Gemini API calls, and HTTP POST coordination between all services</td><td><span class="badge badge-yellow">1.35 s / LLM call</span></td></tr>
+                </tbody>
+            </table>
+        </section>
+
+
             <h2>Experiment Setup &amp; Topology</h2>
             <p>The physical network was modeled using a hierarchical topology representing an airport's edge-to-cloud infrastructure. It comprises <span class="hl-yellow">52 specialized nodes</span>: 50 high-definition endpoint cameras uniformly distributed across five operational zones, sending data through an aggregation core gateway multiplexer to a central Cloud/NOC server.</p>
             <p>To accurately simulate congestion and force network bottlenecks, intra-airport Edge-to-Core links were over-provisioned at 10 Gbps, while the critical Core-to-Cloud WAN link was strictly bottlenecked at <span class="hl-yellow">1 Gbps</span> using an Active Queue Management (AQM) CoDel algorithm. The entire architecture was deployed as a distributed microservices environment using FastAPI, strictly separating the heavy C++ ns-3 simulation engine from the PyTorch inference servers to ensure rapid, enterprise-grade scalability.</p>
@@ -699,6 +1278,33 @@
                     <li><strong>Optimization Efficiency:</strong> The LLM's cognitive evaluator loop reaches a mathematically stable termination decision in an average of <span class="hl-yellow">2.4 iterations</span>.</li>
                     <li><strong>Jitter Prediction Accuracy:</strong> Despite the chaotic micro-bursts of simulated TCP traffic, absolute error for network jitter remained highly bounded at just <span class="hl-yellow">0.056 ms</span>.</li>
                 </ul>
+            </div>
+        </section>
+
+        <section id="limitations" class="glass-panel">
+            <h2>Limitations &amp; Future Work</h2>
+            <p>While our architecture delivers a robust foundation for automated AIOps, we identify four key research avenues that define the path toward production-grade deployment:</p>
+            <div class="limit-grid">
+                <div class="limit-card">
+                    <span class="limit-icon">🔬</span>
+                    <h4>Sim-to-Real Transferability</h4>
+                    <p>The GNN is trained exclusively on synthetic ns-3 data. Future work will integrate <strong>Software-Defined Networking (SDN) hardware</strong> with OpenFlow telemetry to fine-tune the model on real physical measurements and evaluate the sim-to-real performance gap.</p>
+                </div>
+                <div class="limit-card">
+                    <span class="limit-icon">🗺</span>
+                    <h4>Dynamic Topology Generalization</h4>
+                    <p>The ZoneAwareGNN is trained on a fixed 52-node topology. Expanding to <strong>inductive learning paradigms</strong> (e.g. GraphSAGE-style sampling) will allow the model to adapt to structural network expansions, node additions, and physical hardware reconfigurations in real time.</p>
+                </div>
+                <div class="limit-card">
+                    <span class="limit-icon">⚡</span>
+                    <h4>Cognitive Bottleneck (LLM Latency)</h4>
+                    <p>External API calls to Gemini add ~1.35 s per iteration. Future iterations will explore <strong>locally hosted, quantized open-source LLMs</strong> (e.g. Llama 3 / Mistral) to reduce operational latency below 200 ms and eliminate dependency on cloud API availability.</p>
+                </div>
+                <div class="limit-card">
+                    <span class="limit-icon">📡</span>
+                    <h4>Massive-Scale Deployment</h4>
+                    <p>The current orchestrator optimises a 52-node network. Scaling to <strong>thousands of HD camera endpoints</strong> across multi-gateway mega-airports will require horizontal sharding of the orchestrator and distributed GNN inference across multiple GPU nodes.</p>
+                </div>
             </div>
         </section>
 
@@ -784,12 +1390,11 @@
                 if (window.scrollY >= sec.offsetTop - 140) current = sec.id;
             });
             navLinks.forEach(link => {
-                link.style.color = link.getAttribute('href') === '#' + current
-                    ? 'var(--accent-primary)'
-                    : '';
-                link.style.background = link.getAttribute('href') === '#' + current
-                    ? 'rgba(255,255,255,0.09)'
-                    : '';
+                const isActive = link.getAttribute('href') === '#' + current;
+                link.style.color      = isActive ? 'var(--accent-highlight)' : '';
+                link.style.background = isActive ? 'rgba(255,228,77,0.1)' : '';
+                link.style.textShadow = isActive ? '0 0 14px rgba(255,228,77,0.45)' : '';
+                link.style.boxShadow  = isActive ? 'inset 0 1px 0 rgba(255,228,77,0.15)' : '';
             });
         }, { passive: true });
     </script>
